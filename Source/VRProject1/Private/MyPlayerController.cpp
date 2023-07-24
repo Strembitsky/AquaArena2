@@ -9,8 +9,8 @@ AMyPlayerController::AMyPlayerController()
     vrRoot = CreateDefaultSubobject<USceneComponent>(TEXT("VRRoot"));
     vrOffset = CreateDefaultSubobject<USceneComponent>(TEXT("VROffset"));
     vrCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("VR Camera"));
-    vrCamera->SetupAttachment(vrRoot);
-    vrOffset->SetupAttachment(vrCamera);
+    vrOffset->SetupAttachment(vrRoot);
+    vrCamera->SetupAttachment(vrOffset);
     // Attach the components to the root
     LastBoostTime = 0.0f;
     bIsBoosting = false;
@@ -86,13 +86,13 @@ void AMyPlayerController::BeginPlay()
     if (rootComp && controllerOrigin) //&& vrCamera)
     {
         //vrOffset->AttachToComponent(vrCamera, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
-        //controllerOrigin->AttachToComponent(vrRoot, FAttachmentTransformRules::KeepWorldTransform);
-        //vrRoot->AttachToComponent(rootComp, FAttachmentTransformRules::KeepRelativeTransform);
+        vrRoot->AttachToComponent(rootComp, FAttachmentTransformRules::KeepRelativeTransform);
+        controllerOrigin->AttachToComponent(vrRoot, FAttachmentTransformRules::KeepRelativeTransform);
         //vrOffset->AttachToComponent(vrCamera, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, false));
     }
 
     rootComp->SetWorldLocation(vrCamera->GetRelativeLocation(), false, nullptr, ETeleportType::TeleportPhysics);
-    //this->AttachToActor(VRPawnInstance, FAttachmentTransformRules::KeepRelativeTransform);
+    //this->AttachToActor(VRPawnInstance, FAttachmentTransformRules::KeepWorldTransform);
     
 }
 
@@ -180,17 +180,13 @@ FVector AMyPlayerController::ClampVelocity(FVector CurrentVelocity, FVector Thru
 void AMyPlayerController::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-
-    //vrRoot->AddRelativeLocation(rootComp->GetComponentLocation() - (vrRoot->GetRelativeLocation() + vrCamera->GetRelativeLocation()), true, nullptr, ETeleportType::None);
-    //controllerOrigin->SetWorldLocation(vrRoot->GetRelativeLocation(), false, nullptr, ETeleportType::TeleportPhysics);
-
+    
     if (vrRoot && vrCamera)
     {
-        // this code pushes headCollider toward the vrCamera
-        rootComp->AddRelativeLocation((vrCamera->GetComponentLocation() - rootComp->GetRelativeLocation()) + (VRPawnMovement->Velocity * DeltaTime), true, nullptr, ETeleportType::None);
-        controllerOrigin->SetWorldLocation(vrRoot->GetRelativeLocation());
-        vrRoot->AddRelativeLocation((rootComp->GetRelativeLocation() - (vrCamera->GetRelativeLocation() + vrRoot->GetRelativeLocation())) + (VRPawnMovement->Velocity * DeltaTime), true, nullptr, ETeleportType::None);
-        
+        FVector hmdDelta = vrOffset->GetRelativeLocation() - vrCamera->GetRelativeLocation();
+        FVector rootPos = vrRoot->GetRelativeLocation();
+        vrRoot->AddRelativeLocation(hmdDelta - rootPos, true, nullptr, ETeleportType::None);
+        rootComp->AddRelativeLocation(-(hmdDelta - rootPos), true, nullptr, ETeleportType::None);
     }
 
     // Update boost cooldown

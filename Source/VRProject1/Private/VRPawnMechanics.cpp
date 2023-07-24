@@ -39,7 +39,7 @@ void AVRPawnMechanics::BeginPlay()
     Super::BeginPlay();
     //Camera = FindComponentByClass<UCameraComponent>();
     VROrigin = FindComponentByClass<USceneComponent>();
-    rootCollision->SetHiddenInGame(false);
+    //rootCollision->SetHiddenInGame(false);
     FloatingPawn = Cast<UFloatingPawnMovement>(GetMovementComponent());
     leftController = nullptr;
     rightController = nullptr;
@@ -105,6 +105,7 @@ void AVRPawnMechanics::Tick(float DeltaTime)
     rVelocities.RemoveAt(0);
     rVelocities.Add(newRVelocity);
     rVelocity = AverageVelocity(rVelocities);
+    
     previousRPosition = currentRPosition;
 
     currentLPosition = leftController->GetRelativeLocation();

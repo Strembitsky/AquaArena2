@@ -102,7 +102,7 @@ public:
     virtual void Tick(float DeltaTime) override;
 
 private:
-    static const int FrameCount = 5;
+    static const int FrameCount = 10;
     TArray<FVector> velocities;
     TArray<FVector> rVelocities;
     TArray<FVector> lVelocities;

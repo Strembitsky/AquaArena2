@@ -43,6 +43,9 @@ public:
     UMotionControllerComponent* RHand;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+    UCameraComponent* virtualCamera;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
     UFloatingPawnMovement* VRPawnMovement;
     
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Components")

@@ -11,6 +11,7 @@ AMyPlayerController::AMyPlayerController()
     vrCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("VR Camera"));
     vrOffset->SetupAttachment(vrRoot);
     vrCamera->SetupAttachment(vrOffset);
+    virtualCamera = vrCamera;
     // Attach the components to the root
     LastBoostTime = 0.0f;
     bIsBoosting = false;

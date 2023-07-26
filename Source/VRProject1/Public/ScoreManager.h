@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/PointLight.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/TextRenderActor.h"
 #include "Kismet/GameplayStatics.h"
@@ -28,7 +29,58 @@ public:
 	AStaticMeshActor* BlueGoal;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AStaticMeshActor* BlueGoalRim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	AStaticMeshActor* OrangeGoal;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AStaticMeshActor* OrangeGoalRim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AStaticMeshActor* Door1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AStaticMeshActor* Door2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AStaticMeshActor* Flashlight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	APointLight* Light1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	APointLight* Light2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	APointLight* Light3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	APointLight* Light4;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	APointLight* Light5;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	APointLight* Light6;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	APointLight* Light7;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	APointLight* Light8;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AActor* Door1Open;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AActor* Door2Open;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AActor* Door1Closed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AActor* Door2Closed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	ATextRenderActor* OScore1;
@@ -47,6 +99,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	int orangeScore;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	bool OpeningDoors;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	bool ClosingDoors;
+
+	UFUNCTION()
+	void OpenDoors();
 
 protected:
 	// Called when the game starts or when spawned

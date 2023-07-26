@@ -78,14 +78,27 @@ void AVRPawnMechanics::BeginPlay()
 FVector AVRPawnMechanics::AverageVelocity(const TArray<FVector>& velocityArray) const
 {
     FVector totalVelocity(0.f, 0.f, 0.f);
+    float totalWeight = 0.f;
+    int arrayLength = velocityArray.Num();
+    float normalWeight = 1.f; // The weight for the newer velocities
+    float extraWeight = 1.5f; // The weight for the oldest velocities is now double
 
-    for (const FVector& tempVelocity : velocityArray)
+    for (int i = 0; i < arrayLength; i++)
     {
-        totalVelocity += tempVelocity;
+        float weight = normalWeight;
+        if (i < 5) // For the oldest 5 velocities
+            {
+            weight = extraWeight;
+            }
+
+        totalVelocity += weight * velocityArray[i];
+        totalWeight += weight;
     }
 
-    return totalVelocity / static_cast<float>(FrameCount);
+    if (totalWeight == 0) return FVector::ZeroVector; // Avoid division by zero
+    return totalVelocity / totalWeight;
 }
+
 
 void AVRPawnMechanics::Tick(float DeltaTime)
 {

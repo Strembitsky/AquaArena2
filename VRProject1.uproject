@@ -23,6 +23,10 @@
 				"Android",
 				"HoloLens"
 			]
+		},
+		{
+			"Name": "UBIKSolver",
+			"Enabled": false
 		}
 	],
 	"TargetPlatforms": [

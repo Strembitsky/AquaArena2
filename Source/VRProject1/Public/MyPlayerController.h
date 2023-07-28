@@ -42,6 +42,12 @@ public:
     UPROPERTY(EditAnywhere, Category = "Motion Controller")
     UMotionControllerComponent* RHand;
 
+    UPROPERTY(EditAnywhere, Category = "Sound")
+    UAudioComponent* RThrustSound;
+
+    UPROPERTY(EditAnywhere, Category = "Sound")
+    UAudioComponent* LThrustSound;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
     UCameraComponent* virtualCamera;
 

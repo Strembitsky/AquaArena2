@@ -3,11 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PowerManager.h"
 #include "Engine/PointLight.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/TextRenderActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Actor.h"
+#include "Sound/AmbientSound.h"
 #include "ScoreManager.generated.h"
 
 UCLASS()
@@ -23,7 +25,28 @@ public:
 	void OnOverlapBegin(class AActor* OverlappedActor, class AActor* OtherActor);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AAmbientSound* Music;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	AStaticMeshActor* Ball;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AAmbientSound* BallSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AAmbientSound* BallCollideSoft;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AAmbientSound* BallCollideHard;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AAmbientSound* PowerDown;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AAmbientSound* FlashlightBuzz;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AAmbientSound* GoalScore;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	AStaticMeshActor* BlueGoal;
@@ -45,6 +68,24 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	AStaticMeshActor* Flashlight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	APointLight* FlashlightLight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	APointLight* FlashlightLight2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	APointLight* LightCageLight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AStaticMeshActor* LightCage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AStaticMeshActor* LightCageSphere;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AAmbientSound* LightCageLightSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	APointLight* Light1;
@@ -89,10 +130,16 @@ public:
 	ATextRenderActor* OScore2;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-    ATextRenderActor* BScore1;
+	ATextRenderActor* BScore1;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	ATextRenderActor* BScore2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	ATextRenderActor* Hyphen1;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	ATextRenderActor* Hyphen2;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	int blueScore;
@@ -101,13 +148,53 @@ public:
 	int orangeScore;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-	bool OpeningDoors;
+	bool OpeningDoor1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-	bool ClosingDoors;
+	bool ClosingDoor1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	bool turnPowerBackOn1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	APowerManager* powerRef;
+
+	UPROPERTY()
+	FTransform InitFlashlightPos;
+
+	UPROPERTY()
+	bool PowerResetOnce;
+
+	UPROPERTY()
+	bool PowerResetTwice;
+
+	UPROPERTY()
+	FColor OTextColor;
+
+	UPROPERTY()
+	FColor BTextColor;
 
 	UFUNCTION()
-	void OpenDoors();
+	void OpenDoor1();
+
+	UFUNCTION()
+	void OpenDoor2();
+
+	UFUNCTION()
+	void ResetScore();
+
+	UFUNCTION()
+	void breakScore1();
+
+	UFUNCTION()
+	void breakScore2();
+
+	UFUNCTION()
+	void breakScore3();
+
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 
 protected:
 	// Called when the game starts or when spawned

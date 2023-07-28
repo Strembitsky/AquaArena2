@@ -2,6 +2,7 @@
 
 #include "MyPlayerController.h"
 #include "MyPlayerCameraManager.h"
+#include "Components/AudioComponent.h"
 
 AMyPlayerController::AMyPlayerController()
 {
@@ -82,6 +83,24 @@ void AMyPlayerController::BeginPlay()
                 RHand = MotionControllerComponent;
             }
         }
+        
+        TArray<UAudioComponent*> AudioComponents;
+        VRPawnInstance->GetComponents<UAudioComponent>(AudioComponents);
+        {
+            for (UAudioComponent* AudioComponent : AudioComponents)
+            {
+                UE_LOG(LogTemp, Warning, TEXT("%s"), *AudioComponent->GetName());
+                if (AudioComponent->GetName() == "WristSoundLeft")
+                {
+                    LThrustSound = AudioComponent;
+                }
+                else if (AudioComponent->GetName() == "WristSoundRight")
+                {
+                    RThrustSound = AudioComponent;
+                }
+            }
+        }
+        
     }
     
     if (rootComp && controllerOrigin) //&& vrCamera)
@@ -140,11 +159,14 @@ void AMyPlayerController::HandleLWristThrust(const FInputActionInstance& Instanc
 void AMyPlayerController::HandleLWristRelease(const FInputActionInstance& Instance)
 {
     bIsLeftWristThrusting = false;
+    LThrustSound->Stop();
+
 }
 
 void AMyPlayerController::HandleRWristRelease(const FInputActionInstance& Instance)
 {
     bIsRightWristThrusting = false;
+    RThrustSound->Stop();
 }
 
 FVector AMyPlayerController::ClampVelocity(FVector CurrentVelocity, FVector Thrust, float MaxSpeed)
@@ -211,18 +233,31 @@ void AMyPlayerController::Tick(float DeltaTime)
         {
             if (bIsLeftWristThrusting && bIsRightWristThrusting)
             {
+                if (!RThrustSound->IsPlaying() && !LThrustSound->IsPlaying())
+                {
+                    RThrustSound->Play();
+                    LThrustSound->Play();
+                }
                 Forward = (LHand->GetForwardVector() + RHand->GetForwardVector()).GetSafeNormal();
                 MaxSpeed = WristMaxSpeed;
                 Thrust = Forward * WristSpeed * 2.0f * GetWorld()->GetDeltaSeconds();
             }
             else if (bIsRightWristThrusting)
             {
+                if (!RThrustSound->IsPlaying())
+                {
+                    RThrustSound->Play();
+                }
                 Forward = RHand->GetForwardVector().GetSafeNormal();
                 MaxSpeed = WristMaxSpeed * 0.5f;
                 Thrust = Forward * WristSpeed * GetWorld()->GetDeltaSeconds();
             }
             else if (bIsLeftWristThrusting)
             {
+                if (!LThrustSound->IsPlaying())
+                {
+                    LThrustSound->Play();
+                }
                 Forward = LHand->GetForwardVector().GetSafeNormal();
                 MaxSpeed = WristMaxSpeed * 0.5f;
                 Thrust = Forward * WristSpeed * GetWorld()->GetDeltaSeconds();

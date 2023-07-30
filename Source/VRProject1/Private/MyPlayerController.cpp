@@ -208,8 +208,8 @@ void AMyPlayerController::Tick(float DeltaTime)
     {
         FVector hmdDelta = vrOffset->GetRelativeLocation() - vrCamera->GetRelativeLocation();
         FVector rootPos = vrRoot->GetRelativeLocation();
-        vrRoot->AddRelativeLocation(hmdDelta - rootPos, true, nullptr, ETeleportType::None);
-        rootComp->AddRelativeLocation(-(hmdDelta - rootPos), true, nullptr, ETeleportType::None);
+        vrRoot->AddRelativeLocation(hmdDelta - rootPos, true, nullptr, ETeleportType::TeleportPhysics);
+        rootComp->AddRelativeLocation(-(hmdDelta - rootPos), true, nullptr, ETeleportType::TeleportPhysics);
     }
 
     // Update boost cooldown
@@ -233,10 +233,16 @@ void AMyPlayerController::Tick(float DeltaTime)
         {
             if (bIsLeftWristThrusting && bIsRightWristThrusting)
             {
-                if (!RThrustSound->IsPlaying() && !LThrustSound->IsPlaying())
+                if (!RThrustSound->IsPlaying() || !LThrustSound->IsPlaying())
                 {
-                    RThrustSound->Play();
-                    LThrustSound->Play();
+                    if (!RThrustSound->IsPlaying())
+                    {
+                        RThrustSound->Play();
+                    }
+                    if (!LThrustSound->IsPlaying())
+                    {
+                        LThrustSound->Play();
+                    }
                 }
                 Forward = (LHand->GetForwardVector() + RHand->GetForwardVector()).GetSafeNormal();
                 MaxSpeed = WristMaxSpeed;

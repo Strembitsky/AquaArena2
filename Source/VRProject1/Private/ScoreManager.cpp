@@ -16,6 +16,16 @@ void AScoreManager::BeginPlay()
 	Super::BeginPlay();
 	PowerResetOnce = false;
 	turnPowerBackOn1 = false;
+	InitDoor1Pos = Door1->GetActorLocation();
+	SecondPhaseBegun = false;
+	TimeSecondPhaseBegun = 0.f;
+	TurnOffPowerSection1 = false;
+	TurnOffPowerSection2 = false;
+	TurnOffPowerSection3 = false;
+	TurnOffPowerSection4 = false;
+	SecondPhaseComplete = false;
+	OScoringAllowed = true;
+	BScoringAllowed = true;
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStaticMeshActor::StaticClass(), FoundActors);
 
@@ -80,56 +90,62 @@ void AScoreManager::OnOverlapBegin(class AActor* OverlappedActor, class AActor* 
 	// If the actor that overlapped is Ball, increment the score
 	if (OtherActor && (OtherActor != this))
 	{
-		if (OtherActor->IsA(AStaticMeshActor::StaticClass()) && OverlappedActor == BlueGoal)
+		if (BScoringAllowed)
 		{
-			orangeScore++;
-			if (orangeScore < 3)
+			if (OtherActor->IsA(AStaticMeshActor::StaticClass()) && OverlappedActor == BlueGoal)
 			{
-				GoalScore->Play();
-				OScore1->GetTextRender()->SetText(FText::AsNumber(orangeScore));
-				OScore2->GetTextRender()->SetText(FText::AsNumber(orangeScore));
-			}
-			else if (orangeScore == 3)
-			{
-				if (!PowerResetOnce)
-				{
-					breakScore1();
-					OpenDoor1();
-				}
-				else if (!PowerResetTwice)
-				{
-					breakScore2();
-					OpenDoor2();
-				}
-			}
-			
-			UE_LOG(LogTemp, Warning, TEXT("Orange Score: %d"), orangeScore);
-		}
-		else if (OtherActor->IsA(AStaticMeshActor::StaticClass()) && OverlappedActor == OrangeGoal)
-		{
-			blueScore++;
-			if (blueScore < 3)
-			{
+				orangeScore++;
 				GoalScore->Play();
 				BScore1->GetTextRender()->SetText(FText::AsNumber(blueScore));
 				BScore2->GetTextRender()->SetText(FText::AsNumber(blueScore));
-			}
-			else if (blueScore == 3)
-			{
-				if (!PowerResetOnce)
+				OScore1->GetTextRender()->SetText(FText::AsNumber(orangeScore));
+				OScore2->GetTextRender()->SetText(FText::AsNumber(orangeScore));
+				UE_LOG(LogTemp, Warning, TEXT("Orange Score: %d"), orangeScore);
+				if (blueScore < 3 && orangeScore < 3)
 				{
-					breakScore1();
-					OpenDoor1();
+					if (PowerResetOnce && !PowerResetTwice && !SecondPhaseBegun)
+					{
+						BeginSecondPhase();
+					}
 				}
-				else if (!PowerResetTwice)
+				else if (blueScore == 3 || orangeScore == 3)
 				{
-					breakScore2();
-					OpenDoor2();
+					if (!PowerResetOnce)
+					{
+						breakScore1();
+						OpenDoor1();
+					}
 				}
 			}
-			UE_LOG(LogTemp, Warning, TEXT("Blue Score: %d"), blueScore);
 		}
-		
+		if (OScoringAllowed)
+			{
+			if (OtherActor->IsA(AStaticMeshActor::StaticClass()) && OverlappedActor == OrangeGoal)
+			{
+				blueScore++;
+				UE_LOG(LogTemp, Warning, TEXT("Blue Score: %d"), blueScore);
+				GoalScore->Play();
+				BScore1->GetTextRender()->SetText(FText::AsNumber(blueScore));
+				BScore2->GetTextRender()->SetText(FText::AsNumber(blueScore));
+				OScore1->GetTextRender()->SetText(FText::AsNumber(orangeScore));
+				OScore2->GetTextRender()->SetText(FText::AsNumber(orangeScore));
+				if (blueScore < 3 && orangeScore < 3)
+				{
+					if (PowerResetOnce && !PowerResetTwice && !SecondPhaseBegun)
+					{
+						BeginSecondPhase();
+					}
+				}
+				else if (blueScore == 3 || orangeScore == 3)
+				{
+					if (!PowerResetOnce)
+					{
+						breakScore1();
+						OpenDoor1();
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -163,10 +179,38 @@ void AScoreManager::OpenDoor1()
 void AScoreManager::OpenDoor2()
 {
 	OpeningDoor1 = true;
-	Flashlight->SetActorTransform(InitFlashlightPos);
+	Flashlight->GetStaticMeshComponent()->SetSimulatePhysics(true);
+	Flashlight->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Flashlight->SetActorHiddenInGame(false);
+	FlashlightLight->SetEnabled(true);
+	FlashlightLight2->SetEnabled(true);
+	FlashlightBuzz->Play();
 	BallSound->Stop();
-	powerRef->TurnPowerOff2();
+	for (UActorComponent* Component : Flashlight->GetComponents())
+	{
+		if (UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(Component))
+		{
+			StaticMeshComponent->SetVisibility(true, true);
+		}
+		else if (ULightComponent* LightComponent = Cast<USpotLightComponent>(Component))
+		{
+			LightComponent->SetVisibility(true, true);
+		}
+	}
 	Flashlight->GetStaticMeshComponent()->SetPhysicsAngularVelocityInDegrees(FVector(0.f,0.f,60.f));
+}
+
+void AScoreManager::OpenDoor3()
+{
+	Door2->SetActorLocation(Door2Open->GetActorLocation());
+}
+
+void AScoreManager::BeginSecondPhase()
+{
+	Door1->SetActorLocation(InitDoor1Pos);
+	TimeSecondPhaseBegun = GetWorld()->GetTimeSeconds();
+	SecondPhaseBegun = true;
+	OpeningDoor1 = false;
 }
 
 void AScoreManager::breakScore1()
@@ -256,6 +300,20 @@ void AScoreManager::breakScore3()
 	BScore2->GetTextRender()->TextRenderColor = FColor::White;
 }
 
+void AScoreManager::breakScoreSection1()
+{
+	OScore1->GetTextRender()->SetText(FText::FromString("?"));
+	OScore2->GetTextRender()->SetText(FText::FromString("?"));
+	Hyphen1->GetTextRender()->SetText(FText::FromString("v"));
+	Hyphen2->GetTextRender()->SetText(FText::FromString("v"));
+}
+
+void AScoreManager::breakScoreSection2()
+{
+	BScore1->GetTextRender()->SetText(FText::FromString("?"));
+	BScore2->GetTextRender()->SetText(FText::FromString("?"));
+}
+
 void AScoreManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -276,6 +334,35 @@ void AScoreManager::Tick(float DeltaTime)
 	else if (OpeningDoor1)
 	{
 		OpeningDoor1 = false;
+	}
+
+	if (SecondPhaseBegun && !SecondPhaseComplete)
+	{
+		float currentTime = GetWorld()->GetTimeSeconds();
+		if ((currentTime - TimeSecondPhaseBegun > 10.f) && !TurnOffPowerSection1)
+		{
+			powerRef->TurnOffPowerSection1();
+			TurnOffPowerSection1 = true;
+		}
+		else if ((currentTime - TimeSecondPhaseBegun > 30.f) && !TurnOffPowerSection2)
+		{
+			powerRef->TurnOffPowerSection2();
+			breakScoreSection1();
+			TurnOffPowerSection2 = true;
+		}
+		else if ((currentTime - TimeSecondPhaseBegun > 45.f) && !TurnOffPowerSection3)
+		{
+			powerRef->TurnOffPowerSection3();
+			breakScoreSection2();
+			TurnOffPowerSection3 = true;
+		}
+		else if ((currentTime - TimeSecondPhaseBegun > 60.f) && !TurnOffPowerSection4)
+		{
+			powerRef->TurnOffPowerSection4();
+			TurnOffPowerSection4 = true;
+			OpenDoor2();
+			breakScore2();
+		}
 	}
 }
 

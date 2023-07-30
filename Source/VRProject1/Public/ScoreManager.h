@@ -163,10 +163,41 @@ public:
 	FTransform InitFlashlightPos;
 
 	UPROPERTY()
+	FVector InitDoor1Pos;
+
+	UPROPERTY()
+	bool BScoringAllowed;
+
+	UPROPERTY()
+	bool OScoringAllowed;
+
+	UPROPERTY()
 	bool PowerResetOnce;
 
 	UPROPERTY()
 	bool PowerResetTwice;
+
+	UPROPERTY()
+	bool SecondPhaseBegun;
+
+	UPROPERTY()
+	bool SecondPhaseComplete;
+
+	UPROPERTY()
+	float TimeSecondPhaseBegun;
+
+	UPROPERTY()
+	bool TurnOffPowerSection1;
+
+	UPROPERTY()
+	bool TurnOffPowerSection2;
+
+	UPROPERTY()
+	bool TurnOffPowerSection3;
+
+	UPROPERTY()
+	bool TurnOffPowerSection4;
+	
 
 	UPROPERTY()
 	FColor OTextColor;
@@ -181,6 +212,9 @@ public:
 	void OpenDoor2();
 
 	UFUNCTION()
+	void OpenDoor3();
+
+	UFUNCTION()
 	void ResetScore();
 
 	UFUNCTION()
@@ -191,6 +225,15 @@ public:
 
 	UFUNCTION()
 	void breakScore3();
+
+	UFUNCTION()
+	void breakScoreSection1();
+
+	UFUNCTION()
+	void breakScoreSection2();
+
+	UFUNCTION()
+	void BeginSecondPhase();
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

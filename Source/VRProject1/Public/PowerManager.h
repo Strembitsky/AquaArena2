@@ -14,6 +14,8 @@
 #include "PowerManager.generated.h"
 
 class AScoreManager;
+class AVRPawnMechanics;
+class AMyPlayerController;
 
 UCLASS()
 class VRPROJECT1_API APowerManager : public AActor
@@ -24,6 +26,18 @@ public:
 	// Sets default values for this actor's properties
 	APowerManager();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AVRPawnMechanics* VRPawn;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AMyPlayerController* VRPlayerController;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	USceneComponent* PawnRoot;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	USceneComponent* VRRoot;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	TArray<AStaticMeshActor*> ButtonArray;
 
@@ -37,6 +51,12 @@ public:
 	TArray<ASpotLight*> GenLightArray;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	TArray<AActor*> NewButtonPositions;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	TArray<AStaticMeshActor*> ElementsToMakeInvisible;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	AScoreManager* ScoreManager;
 
 	UPROPERTY()
@@ -44,6 +64,9 @@ public:
 
 	UPROPERTY()
 	TMap<AStaticMeshActor*, FVector> InitialButtonPositions;
+
+	UPROPERTY()
+	TMap<AStaticMeshActor*, FVector> OldInitialButtonPositions;
 
 	UPROPERTY()
 	TArray<bool> ButtonsReachedMax;
@@ -61,6 +84,12 @@ public:
 	ASpotLight* RoomSpotLight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	ASpotLight* ArenaEmissions;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	ASpotLight* ArenaEmissions2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	APointLight* OrangeLight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
@@ -70,7 +99,10 @@ public:
 	AStaticMeshActor* Ball;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-	AStaticMeshActor* SecondPhaseHallwayAddition;
+	AStaticMeshActor* Flashlight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	TArray<AStaticMeshActor*> SecondPhaseHallwayAdditions;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	AStaticMeshActor* BlueGoal;
@@ -94,7 +126,19 @@ public:
 	ATriggerBox* GoalSwapTrigger;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	ATriggerBox* HallwayShrinkTrigger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	ATriggerBox* WhatToTeleportTrigger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	ATriggerBox* MusicTrigger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	AAmbientSound* PowerDown;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	AAmbientSound* ScaryLaugh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	AAmbientSound* LightCageLightSound;
@@ -109,10 +153,18 @@ public:
 	AAmbientSound* Music;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AAmbientSound* Music2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	AAmbientSound* Solution;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AAmbientSound* PowerSectionOff;
 
 	UPROPERTY()
 	FTransform InitBallPos;
+	UPROPERTY()
+	FTransform InitGenPos;
 	UPROPERTY()
 	FTransform InitOGoalPos;
 	UPROPERTY()
@@ -123,6 +175,16 @@ public:
 	FTransform InitBLightPos;
 	UPROPERTY()
 	bool GoalsSwapped;
+	UPROPERTY()
+	bool HallShrunk;
+	UPROPERTY()
+	bool BeginTransition;
+
+	UPROPERTY()
+	bool MusicPlayed;
+
+	UPROPERTY()
+	bool PlayMusic;
 
 	UPROPERTY()
 	TArray<bool> overlappedButtons;
@@ -131,6 +193,12 @@ public:
 
 	UFUNCTION()
 	void OnOverlapBegin(class AActor* OverlappedActor, class AActor* OtherActor);
+
+	UFUNCTION()
+	void OnOverlapBeginHallShrink(class AActor* OverlappedActor, class AActor* OtherActor);
+
+	UFUNCTION()
+	void OnOverlapBeginMusic(class AActor* OverlappedActor, class AActor* OtherActor);
 
 	UFUNCTION()
 	void OnButtonOverlapBegin(class AActor* OverlappedActor, class AActor* OtherActor);
@@ -143,15 +211,29 @@ public:
 
 	UFUNCTION()
 	void TurnPowerOff2();
+	
+	UFUNCTION()
+	void TurnOffPowerSection1();
+
+	UFUNCTION()
+	void TurnOffPowerSection2();
+
+	UFUNCTION()
+	void TurnOffPowerSection3();
+
+	UFUNCTION()
+	void TurnOffPowerSection4();
 
 	UFUNCTION()
 	void TurnPowerBackOn1();
+
+	UFUNCTION()
+	void TurnPowerBackOn2();
 
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:	
 	// Called every frame

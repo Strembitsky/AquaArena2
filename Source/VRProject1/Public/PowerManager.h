@@ -81,7 +81,7 @@ public:
 	APointLight* LightCageLight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
-	ASpotLight* RoomSpotLight;
+	APointLight* RoomPointLight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	ASpotLight* ArenaEmissions;

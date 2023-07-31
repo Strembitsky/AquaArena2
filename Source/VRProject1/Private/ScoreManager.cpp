@@ -302,16 +302,16 @@ void AScoreManager::breakScore3()
 
 void AScoreManager::breakScoreSection1()
 {
-	OScore1->GetTextRender()->SetText(FText::FromString("?"));
-	OScore2->GetTextRender()->SetText(FText::FromString("?"));
+	BScore1->GetTextRender()->SetText(FText::FromString("?"));
+	BScore2->GetTextRender()->SetText(FText::FromString("?"));
 	Hyphen1->GetTextRender()->SetText(FText::FromString("v"));
 	Hyphen2->GetTextRender()->SetText(FText::FromString("v"));
 }
 
 void AScoreManager::breakScoreSection2()
 {
-	BScore1->GetTextRender()->SetText(FText::FromString("?"));
-	BScore2->GetTextRender()->SetText(FText::FromString("?"));
+	OScore1->GetTextRender()->SetText(FText::FromString("?"));
+	OScore2->GetTextRender()->SetText(FText::FromString("?"));
 }
 
 void AScoreManager::Tick(float DeltaTime)
@@ -356,7 +356,7 @@ void AScoreManager::Tick(float DeltaTime)
 			breakScoreSection2();
 			TurnOffPowerSection3 = true;
 		}
-		else if ((currentTime - TimeSecondPhaseBegun > 60.f) && !TurnOffPowerSection4)
+		else if ((currentTime - TimeSecondPhaseBegun > 50.f) && !TurnOffPowerSection4)
 		{
 			powerRef->TurnOffPowerSection4();
 			TurnOffPowerSection4 = true;

@@ -84,6 +84,12 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
     bool bIsRightWristThrusting;
 
+    UPROPERTY()
+    bool ThrustingAllowed;
+
+    UPROPERTY()
+    bool BoostingAllowed;
+
     virtual void SetupInputComponent() override;
 
     void HandleRWristThrust(const FInputActionInstance&);

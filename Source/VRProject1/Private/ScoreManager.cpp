@@ -24,6 +24,7 @@ void AScoreManager::BeginPlay()
 	TurnOffPowerSection3 = false;
 	TurnOffPowerSection4 = false;
 	SecondPhaseComplete = false;
+	PowerOffOnce = false;
 	OScoringAllowed = true;
 	BScoringAllowed = true;
 	TArray<AActor*> FoundActors;
@@ -92,12 +93,10 @@ void AScoreManager::OnOverlapBegin(class AActor* OverlappedActor, class AActor* 
 	{
 		if (BScoringAllowed)
 		{
-			if (OtherActor->IsA(AStaticMeshActor::StaticClass()) && OverlappedActor == BlueGoal)
+			if (OtherActor->ActorHasTag("Score") && OverlappedActor == BlueGoal)
 			{
 				orangeScore++;
 				GoalScore->Play();
-				BScore1->GetTextRender()->SetText(FText::AsNumber(blueScore));
-				BScore2->GetTextRender()->SetText(FText::AsNumber(blueScore));
 				OScore1->GetTextRender()->SetText(FText::AsNumber(orangeScore));
 				OScore2->GetTextRender()->SetText(FText::AsNumber(orangeScore));
 				UE_LOG(LogTemp, Warning, TEXT("Orange Score: %d"), orangeScore);
@@ -110,25 +109,24 @@ void AScoreManager::OnOverlapBegin(class AActor* OverlappedActor, class AActor* 
 				}
 				else if (blueScore == 3 || orangeScore == 3)
 				{
-					if (!PowerResetOnce)
+					if (!PowerOffOnce)
 					{
 						breakScore1();
 						OpenDoor1();
+						PowerOffOnce = true;
 					}
 				}
 			}
 		}
 		if (OScoringAllowed)
 			{
-			if (OtherActor->IsA(AStaticMeshActor::StaticClass()) && OverlappedActor == OrangeGoal)
+			if (OtherActor->ActorHasTag("Score") && OverlappedActor == OrangeGoal)
 			{
 				blueScore++;
 				UE_LOG(LogTemp, Warning, TEXT("Blue Score: %d"), blueScore);
 				GoalScore->Play();
 				BScore1->GetTextRender()->SetText(FText::AsNumber(blueScore));
 				BScore2->GetTextRender()->SetText(FText::AsNumber(blueScore));
-				OScore1->GetTextRender()->SetText(FText::AsNumber(orangeScore));
-				OScore2->GetTextRender()->SetText(FText::AsNumber(orangeScore));
 				if (blueScore < 3 && orangeScore < 3)
 				{
 					if (PowerResetOnce && !PowerResetTwice && !SecondPhaseBegun)
@@ -138,10 +136,11 @@ void AScoreManager::OnOverlapBegin(class AActor* OverlappedActor, class AActor* 
 				}
 				else if (blueScore == 3 || orangeScore == 3)
 				{
-					if (!PowerResetOnce)
+					if (!PowerOffOnce)
 					{
 						breakScore1();
 						OpenDoor1();
+						PowerOffOnce = true;
 					}
 				}
 			}

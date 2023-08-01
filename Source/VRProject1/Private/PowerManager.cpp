@@ -24,6 +24,14 @@ void APowerManager::BeginPlay()
     BeginTransition = false;
     MusicPlayed = false;
     PlayMusic = false;
+    ElevatorOpened = false;
+    GravityEnabled = false;
+    ArenaCloseWall->SetActorEnableCollision(false);
+    LivingRoomSealWall->SetActorEnableCollision(false);
+    SlowDownMusic = false;
+    SlowDownMusic2 = false;
+    SpeedMusicUp1 = false;
+    EnableGravityTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapEnableGravity);
 
     if (FoundActors.Num() > 0)
     {
@@ -86,11 +94,80 @@ void APowerManager::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
+    if (Cast<USphereComponent>(VRPlayerController->rootComp)->IsGravityEnabled())
+    {
+        VRPawn->FloatingPawn->Velocity.Z = 0.f;
+    }
+
+    if (GoEnableGravity)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("ENABLING GRAVITY NOW"));
+        Cast<USphereComponent>(VRPlayerController->rootComp)->SetSimulatePhysics(true);
+        Cast<USphereComponent>(VRPlayerController->rootComp)->SetEnableGravity(true);
+        Flashlight->GetStaticMeshComponent()->SetEnableGravity(true);
+        Cast<USphereComponent>(VRPlayerController->rootComp)->SetMassOverrideInKg(NAME_None, 0.1f);
+        Cast<USphereComponent>(VRPlayerController->rootComp)->SetSphereRadius(17.5f);
+        VRPlayerController->BoostingAllowed = false;
+        VRPlayerController->ThrustingAllowed = false;
+        VRPawn->FloatingPawn->Deceleration = 1000.f;
+        GoEnableGravity = false;
+    }
+
     if (PlayMusic)
     {
         TurnPowerBackOn2();
         PlayMusic = false;
         PowerIsOn = true;
+    }
+
+    if (SlowDownMusic2)
+    {
+        if (Music2->GetAudioComponent()->VolumeMultiplier > 0.f)
+        {
+            //Music2->GetAudioComponent()->SetPitchMultiplier(Music2->GetAudioComponent()->PitchMultiplier - 0.0025f);
+            Music2->GetAudioComponent()->SetVolumeMultiplier(Music2->GetAudioComponent()->VolumeMultiplier - 0.0025f);
+        }
+        else
+        {
+            Music2->Stop();
+            SlowDownMusic2 = false;
+            Music2->GetAudioComponent()->SetPitchMultiplier(1.0f);
+            Music2->GetAudioComponent()->SetVolumeMultiplier(1.0f);
+        }
+    }
+
+    if (SlowDownMusic)
+    {
+        if (Music->GetAudioComponent()->VolumeMultiplier > 0.f)
+        {
+            Music->GetAudioComponent()->SetPitchMultiplier(Music->GetAudioComponent()->PitchMultiplier - 0.0025f);
+            Music->GetAudioComponent()->SetVolumeMultiplier(Music->GetAudioComponent()->VolumeMultiplier - 0.0025f);
+
+        }
+        else
+        {
+            Music->Stop();
+            SlowDownMusic = false;
+            Music->GetAudioComponent()->SetPitchMultiplier(1.0f);
+            Music->GetAudioComponent()->SetVolumeMultiplier(1.0f);
+        }
+    }
+
+    if (SpeedMusicUp1)
+    {
+        Music->Play(50.f);
+        if (Music->GetAudioComponent()->VolumeMultiplier < 1.f)
+        {
+            Music->GetAudioComponent()->SetPitchMultiplier(Music->GetAudioComponent()->PitchMultiplier + 0.0025f);
+            Music->GetAudioComponent()->SetVolumeMultiplier(Music->GetAudioComponent()->VolumeMultiplier + 0.0025f);
+
+        }
+        else
+        {
+            SpeedMusicUp1 = false;
+            Music->GetAudioComponent()->SetPitchMultiplier(1.0f);
+            Music->GetAudioComponent()->SetVolumeMultiplier(1.0f);
+        }
     }
     
     if (BeginTransition)
@@ -232,7 +309,7 @@ void APowerManager::TurnPowerOff1()
     ArenaEmissions->SetEnabled(false);
     ArenaEmissions2->SetEnabled(false);
     PowerDown->Play();
-    Music->Stop();
+    SlowDownMusic = true;
     PowerIsOn = false;
 }
 
@@ -295,6 +372,7 @@ void APowerManager::TurnPowerOff2()
 
     HallwayShrinkTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapBeginHallShrink);
     MusicTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapBeginMusic);
+    CloseArenaOpenElevatorTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapBeginCloseArenaOpenElevator);
     
     for (AStaticMeshActor* Actor : SecondPhaseHallwayAdditions)
     {
@@ -344,7 +422,7 @@ void APowerManager::TurnOffPowerSection3()
     BlueGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     BlueGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     ScoreManager->BScoringAllowed = false;
-    Music->Stop();
+    SlowDownMusic = true;
     ScaryLaugh->Play();
     
     for (int32 i = 0; i < ArenaLightArray.Num(); ++i)
@@ -397,8 +475,8 @@ void APowerManager::TurnPowerBackOn1()
     }
     ArenaEmissions->SetEnabled(true);
     ArenaEmissions2->SetEnabled(true);
-    
-    Music->Play();
+
+    SpeedMusicUp1 = true;
 
     BlueGoalRim->SetActorTransform(InitBGoalPos);
     BlueLight->SetActorTransform(InitBLightPos);
@@ -435,7 +513,7 @@ void APowerManager::TurnPowerBackOn2()
     }
     ArenaEmissions->SetEnabled(true);
     ArenaEmissions2->SetEnabled(true);
-    Music2->Play(15.f);
+    Music2->Play(50.f);
     UE_LOG(LogTemp, Warning, TEXT("SHOULD START MUSIC HERE"));
     
     BlueGoalRim->SetActorTransform(InitOGoalPos);
@@ -481,6 +559,31 @@ void APowerManager::OnOverlapBeginMusic(AActor* OverlappedActor, AActor* OtherAc
         MusicPlayed = true;
     }
 }
+
+void APowerManager::OnOverlapBeginCloseArenaOpenElevator(AActor* OverlappedActor, AActor* OtherActor)
+{
+    if (!ElevatorOpened && OtherActor->GetName().Contains("Pawn"))
+    {
+        ElevatorOpenWall->SetActorHiddenInGame(true);
+        ElevatorOpenWall->SetActorEnableCollision(false);
+        ArenaCloseWall->SetActorHiddenInGame(false);
+        ArenaCloseWall->SetActorEnableCollision(true);
+        //LivingRoomSealWall->SetActorHiddenInGame(false);
+        //LivingRoomSealWall->SetActorEnableCollision(true);
+        SlowDownMusic2 = true;
+        ElevatorOpened = true;
+    }
+}
+
+void APowerManager::OnOverlapEnableGravity(AActor* OverlappedActor, AActor* OtherActor)
+{
+    if (!GravityEnabled && OtherActor->GetName().Contains("Pawn"))
+    {
+        GoEnableGravity = true;
+        GravityEnabled = true;
+    }
+}
+
 void APowerManager::OnButtonOverlapBegin(AActor* OverlappedActor, AActor* OtherActor)
 {
     UE_LOG(LogTemp, Warning, TEXT("%s"), *OverlappedActor->GetName());

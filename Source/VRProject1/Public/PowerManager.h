@@ -135,6 +135,12 @@ public:
 	ATriggerBox* MusicTrigger;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	ATriggerBox* CloseArenaOpenElevatorTrigger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	ATriggerBox* EnableGravityTrigger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	AAmbientSound* PowerDown;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
@@ -148,6 +154,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	AStaticMeshActor* LightCageSphere;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	AStaticMeshActor* ArenaCloseWall;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	AStaticMeshActor* LivingRoomSealWall;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	AStaticMeshActor* ElevatorOpenWall;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	AAmbientSound* Music;
@@ -181,10 +196,28 @@ public:
 	bool BeginTransition;
 
 	UPROPERTY()
+	bool SlowDownMusic2;
+
+	UPROPERTY()
+	bool SlowDownMusic;
+
+	UPROPERTY()
+	bool SpeedMusicUp1;
+
+	UPROPERTY()
+	bool GravityEnabled;
+
+	UPROPERTY()
+	bool GoEnableGravity;
+
+	UPROPERTY()
 	bool MusicPlayed;
 
 	UPROPERTY()
 	bool PlayMusic;
+
+	UPROPERTY()
+	bool ElevatorOpened;
 
 	UPROPERTY()
 	TArray<bool> overlappedButtons;
@@ -198,7 +231,13 @@ public:
 	void OnOverlapBeginHallShrink(class AActor* OverlappedActor, class AActor* OtherActor);
 
 	UFUNCTION()
+	void OnOverlapBeginCloseArenaOpenElevator(class AActor* OverlappedActor, class AActor* OtherActor);
+
+	UFUNCTION()
 	void OnOverlapBeginMusic(class AActor* OverlappedActor, class AActor* OtherActor);
+
+	UFUNCTION()
+	void OnOverlapEnableGravity(class AActor* OverlappedActor, class AActor* OtherActor);
 
 	UFUNCTION()
 	void OnButtonOverlapBegin(class AActor* OverlappedActor, class AActor* OtherActor);

@@ -16,6 +16,8 @@ AMyPlayerController::AMyPlayerController()
     // Attach the components to the root
     LastBoostTime = 0.0f;
     bIsBoosting = false;
+    BoostingAllowed = true;
+    ThrustingAllowed = true;
     PlayerCameraManagerClass = AMyPlayerCameraManager::StaticClass();
 }
 
@@ -133,34 +135,42 @@ void AMyPlayerController::SetupInputComponent()
 
 void AMyPlayerController::HandleBoost(const FInputActionInstance& Instance)
 {
-    if (BoostCooldown >= 51.0f)
+    if (BoostingAllowed)
     {
-        // Get the forward vector of the camera
-        FVector Forward = vrCamera->GetForwardVector();
-        // Calculate the thrust force
-        FVector Thrust = Forward * BoostForce;
-        // Apply the thrust
-        VRPawnMovement->Velocity = ClampVelocity(VRPawnMovement->Velocity, Thrust, BoostMaxSpeed);
+        if (BoostCooldown >= 51.0f)
+        {
+            // Get the forward vector of the camera
+            FVector Forward = vrCamera->GetForwardVector();
+            // Calculate the thrust force
+            FVector Thrust = Forward * BoostForce;
+            // Apply the thrust
+            VRPawnMovement->Velocity = ClampVelocity(VRPawnMovement->Velocity, Thrust, BoostMaxSpeed);
 
-        BoostCooldown -= 51.0f;
+            BoostCooldown -= 51.0f;
+        }
     }
 }
 
 void AMyPlayerController::HandleRWristThrust(const FInputActionInstance& Instance)
 {
-    bIsRightWristThrusting = true;
+    if (ThrustingAllowed)
+    {
+        bIsRightWristThrusting = true;
+    }
 }
 
 void AMyPlayerController::HandleLWristThrust(const FInputActionInstance& Instance)
 {
-    bIsLeftWristThrusting = true;
+    if (ThrustingAllowed)
+    {
+        bIsLeftWristThrusting = true;
+    }
 }
 
 void AMyPlayerController::HandleLWristRelease(const FInputActionInstance& Instance)
 {
     bIsLeftWristThrusting = false;
     LThrustSound->Stop();
-
 }
 
 void AMyPlayerController::HandleRWristRelease(const FInputActionInstance& Instance)

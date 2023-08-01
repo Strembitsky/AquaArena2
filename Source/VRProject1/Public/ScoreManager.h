@@ -181,6 +181,9 @@ public:
 	bool SecondPhaseBegun;
 
 	UPROPERTY()
+	bool PowerOffOnce;
+
+	UPROPERTY()
 	bool SecondPhaseComplete;
 
 	UPROPERTY()

@@ -86,6 +86,12 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
     FVector lVelocity;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+    FVector ballReleasePosition;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+    bool CanPlayDragSound;
+
     // UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grabbing")
     // UGrabComponent* HeldComponentLeft;
     //

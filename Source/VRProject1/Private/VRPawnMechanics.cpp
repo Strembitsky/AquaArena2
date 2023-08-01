@@ -31,6 +31,8 @@ AVRPawnMechanics::AVRPawnMechanics()
     velocities.SetNumZeroed(FrameCount);
     rVelocities.SetNumZeroed(FrameCount);
     lVelocities.SetNumZeroed(FrameCount);
+
+    CanPlayDragSound = false;
     
 }
 

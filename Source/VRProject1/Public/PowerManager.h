@@ -102,6 +102,21 @@ public:
 	AStaticMeshActor* Flashlight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AStaticMeshActor* BloodSplatter;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AStaticMeshActor* OrangeBubble;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AStaticMeshActor* OrangeBubbleInterior;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AStaticMeshActor* BlueBubble;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AStaticMeshActor* BlueBubbleInterior;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	TArray<AStaticMeshActor*> SecondPhaseHallwayAdditions;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
@@ -141,6 +156,9 @@ public:
 	ATriggerBox* EnableGravityTrigger;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	ATriggerBox* SplatTrigger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	AAmbientSound* PowerDown;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
@@ -175,6 +193,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	AAmbientSound* PowerSectionOff;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	UAudioComponent* WindFall;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	UAudioComponent* Splat;
 
 	UPROPERTY()
 	FTransform InitBallPos;
@@ -220,6 +244,9 @@ public:
 	bool ElevatorOpened;
 
 	UPROPERTY()
+	bool Splatted;
+
+	UPROPERTY()
 	TArray<bool> overlappedButtons;
 	
 	
@@ -235,6 +262,9 @@ public:
 
 	UFUNCTION()
 	void OnOverlapBeginMusic(class AActor* OverlappedActor, class AActor* OtherActor);
+
+	UFUNCTION()
+	void OnOverlapBeginSplat(class AActor* OverlappedActor, class AActor* OtherActor);
 
 	UFUNCTION()
 	void OnOverlapEnableGravity(class AActor* OverlappedActor, class AActor* OtherActor);

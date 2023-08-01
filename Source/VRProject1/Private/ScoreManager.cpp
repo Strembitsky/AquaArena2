@@ -5,6 +5,7 @@
 #include "Components/PrimitiveComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "VRPawnMechanics.h"
 
 AScoreManager::AScoreManager()
 {
@@ -14,6 +15,20 @@ AScoreManager::AScoreManager()
 void AScoreManager::BeginPlay()
 {
 	Super::BeginPlay();
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AVRPawnMechanics::StaticClass(), FoundActors);
+	if (FoundActors.Num() > 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("FOUND VRPAWN IN POWERMANAGER"));
+		AVRPawnMechanics* FoundVRPawn = Cast<AVRPawnMechanics>(FoundActors[0]);
+
+		if (FoundVRPawn != nullptr)
+		{
+			// Now you can use FoundVRPawn as a reference to your VRPawn class.
+			VRPawn = FoundVRPawn;
+		}
+	}
+	
 	PowerResetOnce = false;
 	turnPowerBackOn1 = false;
 	InitDoor1Pos = Door1->GetActorLocation();
@@ -27,8 +42,6 @@ void AScoreManager::BeginPlay()
 	PowerOffOnce = false;
 	OScoringAllowed = true;
 	BScoringAllowed = true;
-	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStaticMeshActor::StaticClass(), FoundActors);
 
 	OTextColor = OScore1->GetTextRender()->TextRenderColor;
 	BTextColor = BScore1->GetTextRender()->TextRenderColor;
@@ -95,19 +108,27 @@ void AScoreManager::OnOverlapBegin(class AActor* OverlappedActor, class AActor* 
 		{
 			if (OtherActor->ActorHasTag("Score") && OverlappedActor == BlueGoal)
 			{
-				orangeScore++;
+				UE_LOG(LogTemp, Warning, TEXT("DISTANCE TO BLUE GOAL %f"), (VRPawn->ballReleasePosition - BlueGoalRim->GetActorLocation()).Size())
+				if ((VRPawn->ballReleasePosition - BlueGoalRim->GetActorLocation()).Size() >= 1125.f)
+				{
+					orangeScore += 3;
+				}
+				else
+				{
+					orangeScore += 2;
+				}
 				GoalScore->Play();
 				OScore1->GetTextRender()->SetText(FText::AsNumber(orangeScore));
 				OScore2->GetTextRender()->SetText(FText::AsNumber(orangeScore));
 				UE_LOG(LogTemp, Warning, TEXT("Orange Score: %d"), orangeScore);
-				if (blueScore < 3 && orangeScore < 3)
+				if (blueScore < 6 && orangeScore < 6)
 				{
 					if (PowerResetOnce && !PowerResetTwice && !SecondPhaseBegun)
 					{
 						BeginSecondPhase();
 					}
 				}
-				else if (blueScore == 3 || orangeScore == 3)
+				else
 				{
 					if (!PowerOffOnce)
 					{
@@ -122,19 +143,27 @@ void AScoreManager::OnOverlapBegin(class AActor* OverlappedActor, class AActor* 
 			{
 			if (OtherActor->ActorHasTag("Score") && OverlappedActor == OrangeGoal)
 			{
-				blueScore++;
+				UE_LOG(LogTemp, Warning, TEXT("DISTANCE TO ORANGE GOAL %f"), (VRPawn->ballReleasePosition - OrangeGoalRim->GetActorLocation()).Size())
+				if ((VRPawn->ballReleasePosition - OrangeGoalRim->GetActorLocation()).Size() >= 1125.f)
+				{
+					blueScore += 3;
+				}
+				else
+				{
+					blueScore += 2;
+				}
 				UE_LOG(LogTemp, Warning, TEXT("Blue Score: %d"), blueScore);
 				GoalScore->Play();
 				BScore1->GetTextRender()->SetText(FText::AsNumber(blueScore));
 				BScore2->GetTextRender()->SetText(FText::AsNumber(blueScore));
-				if (blueScore < 3 && orangeScore < 3)
+				if (blueScore < 6 && orangeScore < 6)
 				{
 					if (PowerResetOnce && !PowerResetTwice && !SecondPhaseBegun)
 					{
 						BeginSecondPhase();
 					}
 				}
-				else if (blueScore == 3 || orangeScore == 3)
+				else
 				{
 					if (!PowerOffOnce)
 					{

@@ -12,6 +12,8 @@
 #include "Sound/AmbientSound.h"
 #include "ScoreManager.generated.h"
 
+class AVRPawnMechanics;
+
 UCLASS()
 class VRPROJECT1_API AScoreManager : public AActor
 {
@@ -23,6 +25,9 @@ public:
 
 	UFUNCTION()
 	void OnOverlapBegin(class AActor* OverlappedActor, class AActor* OtherActor);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AVRPawnMechanics* VRPawn;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	AAmbientSound* Music;

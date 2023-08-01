@@ -31,7 +31,10 @@ void APowerManager::BeginPlay()
     SlowDownMusic = false;
     SlowDownMusic2 = false;
     SpeedMusicUp1 = false;
+    Splatted = false;
     EnableGravityTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapEnableGravity);
+    SplatTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapBeginSplat);
+    BloodSplatter->SetActorHiddenInGame(true);
 
     if (FoundActors.Num() > 0)
     {
@@ -111,6 +114,20 @@ void APowerManager::Tick(float DeltaTime)
         VRPlayerController->ThrustingAllowed = false;
         VRPawn->FloatingPawn->Deceleration = 1000.f;
         GoEnableGravity = false;
+        TArray<UAudioComponent*> AudioComponents;
+        VRPawn->GetComponents<UAudioComponent>(AudioComponents);
+        for(UAudioComponent* AudioComp : AudioComponents)
+        {
+            if(AudioComp->GetName().Equals("WindFall"))
+            {
+                WindFall = AudioComp;
+                WindFall->Play();
+            }
+            else if (AudioComp->GetName().Equals("Splat"))
+            {
+                Splat = AudioComp;
+            }
+        }
     }
 
     if (PlayMusic)
@@ -298,6 +315,10 @@ void APowerManager::TurnPowerOff1()
     BlueGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     OrangeGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     OrangeGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    BlueBubble->SetActorHiddenInGame(true);
+    BlueBubbleInterior->SetActorHiddenInGame(true);
+    OrangeBubble->SetActorHiddenInGame(true);
+    OrangeBubbleInterior->SetActorHiddenInGame(true);
     ScoreManager->OScoringAllowed = false;
     ScoreManager->BScoringAllowed = false;
 
@@ -403,6 +424,8 @@ void APowerManager::TurnOffPowerSection2()
     OrangeGoalRim->GetStaticMeshComponent()->SetEnableGravity(true);
     OrangeGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     OrangeGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    OrangeBubble->SetActorHiddenInGame(true);
+    OrangeBubbleInterior->SetActorHiddenInGame(true);
     ScoreManager->OScoringAllowed = false;
     for (int32 i = 0; i < ArenaLightArray.Num(); ++i)
     {
@@ -421,6 +444,8 @@ void APowerManager::TurnOffPowerSection3()
     BlueGoalRim->GetStaticMeshComponent()->SetEnableGravity(true);
     BlueGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     BlueGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    BlueBubble->SetActorHiddenInGame(true);
+    BlueBubbleInterior->SetActorHiddenInGame(true);
     ScoreManager->BScoringAllowed = false;
     SlowDownMusic = true;
     ScaryLaugh->Play();
@@ -466,6 +491,10 @@ void APowerManager::TurnPowerBackOn1()
     BlueGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     OrangeGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     OrangeGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    BlueBubble->SetActorHiddenInGame(false);
+    BlueBubbleInterior->SetActorHiddenInGame(false);
+    OrangeBubble->SetActorHiddenInGame(false);
+    OrangeBubbleInterior->SetActorHiddenInGame(false);
     ScoreManager->BScoringAllowed = true;
     ScoreManager->OScoringAllowed = true;
 
@@ -504,6 +533,10 @@ void APowerManager::TurnPowerBackOn2()
     BlueGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     OrangeGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     OrangeGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    BlueBubble->SetActorHiddenInGame(false);
+    BlueBubbleInterior->SetActorHiddenInGame(false);
+    OrangeBubble->SetActorHiddenInGame(false);
+    OrangeBubbleInterior->SetActorHiddenInGame(false);
     ScoreManager->OScoringAllowed = true;
     ScoreManager->BScoringAllowed = true;
 
@@ -581,6 +614,18 @@ void APowerManager::OnOverlapEnableGravity(AActor* OverlappedActor, AActor* Othe
     {
         GoEnableGravity = true;
         GravityEnabled = true;
+    }
+}
+
+void APowerManager::OnOverlapBeginSplat(AActor* OverlappedActor, AActor* OtherActor)
+{
+    if (!Splatted && OtherActor->GetName().Contains("Pawn"))
+    {
+        WindFall->Stop();
+        Splat->Play();
+        Splatted = true;
+        VRPawn->CanPlayDragSound = true;
+        BloodSplatter->SetActorHiddenInGame(false);
     }
 }
 

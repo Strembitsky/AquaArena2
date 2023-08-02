@@ -9,6 +9,7 @@
 #include "Components/SphereComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SceneComponent.h"
+#include "Engine/StaticMeshActor.h"
 #include "VRPawnMechanics.generated.h"
 
 UCLASS()
@@ -98,29 +99,66 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
         USphereComponent* rootCollision;
 
-    UPROPERTY()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
     bool DiscItemGrabbed;
 
-    UPROPERTY()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
     bool WrenchItemGrabbed;
 
-    UPROPERTY()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
     bool SlenderItemGrabbed;
 
-    UPROPERTY()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
     bool MilkItemGrabbed;
 
-    UPROPERTY()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
     bool BearItemGrabbed;
 
-    UPROPERTY()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
     bool MooseItemGrabbed;
 
-    UPROPERTY()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
     bool BoxItemGrabbed;
 
-    UPROPERTY()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
     bool FlashlightItemGrabbed;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    bool UpdatePictureFrame;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    AStaticMeshActor* DiscPictureMesh;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    AStaticMeshActor* WrenchPictureMesh;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    AStaticMeshActor* SlenderPictureMesh;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    AStaticMeshActor* MilkPictureMesh;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    AStaticMeshActor* BearPictureMesh;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    AStaticMeshActor* BoxPictureMesh;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    AStaticMeshActor* MoosePictureMesh;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    AStaticMeshActor* FlashlightPictureMesh;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    UMaterialInterface* DiscMat;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    UMaterialInterface* WrenchMat;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    UMaterialInterface* SlenderMat;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    UMaterialInterface* MilkMat;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    UMaterialInterface* BearMat;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    UMaterialInterface* BoxMat;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    UMaterialInterface* MooseMat;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    UMaterialInterface* FlashlightMat;
+    
 
     // void AVRPawnMechanics::HandleLClimb(const FInputActionInstance& Instance);
 

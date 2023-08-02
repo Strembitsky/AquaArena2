@@ -58,6 +58,9 @@ public:
 	TArray<AStaticMeshActor*> ElementsToMakeInvisible;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	TArray<AActor*> MilkActors;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	AScoreManager* ScoreManager;
 
 	UPROPERTY()

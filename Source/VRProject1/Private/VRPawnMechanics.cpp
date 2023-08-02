@@ -2,6 +2,8 @@
 
 #include "VRPawnMechanics.h"
 
+#include "Kismet/GameplayStatics.h"
+
 AVRPawnMechanics::AVRPawnMechanics()
 {
 
@@ -43,6 +45,17 @@ void AVRPawnMechanics::BeginPlay()
     FloatingPawn = Cast<UFloatingPawnMovement>(GetMovementComponent());
     leftController = nullptr;
     rightController = nullptr;
+
+    UpdatePictureFrame = false;
+    DiscItemGrabbed = false;
+    WrenchItemGrabbed = false;
+    SlenderItemGrabbed = false;
+    MilkItemGrabbed = false;
+    BearItemGrabbed = false;
+    MooseItemGrabbed = false;
+    BoxItemGrabbed = false;
+    FlashlightItemGrabbed = false;
+    
     TArray<UMotionControllerComponent*> controllers;
     GetComponents<UMotionControllerComponent>(controllers);
     for (UMotionControllerComponent* controller : controllers)
@@ -56,6 +69,46 @@ void AVRPawnMechanics::BeginPlay()
             rightController = controller;
         }
     }
+    
+    TArray<AActor*> FoundActors;  // Holds the actors found
+    UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("Picture"), FoundActors);
+    // You can now cast the actors to AStaticMeshActor* and add them to your Pictures array
+    for (AActor* Actor : FoundActors)
+    {
+        AStaticMeshActor* StaticMeshActor = Cast<AStaticMeshActor>(Actor);
+        if (StaticMeshActor->ActorHasTag("Disc"))
+        {
+            DiscPictureMesh = StaticMeshActor;
+        }
+        else if (StaticMeshActor->ActorHasTag("Wrench"))
+        {
+            WrenchPictureMesh = StaticMeshActor;
+        }
+        else if (StaticMeshActor->ActorHasTag("Slenderman"))
+        {
+            SlenderPictureMesh = StaticMeshActor;
+        }
+        else if (StaticMeshActor->ActorHasTag("Milk"))
+        {
+            MilkPictureMesh = StaticMeshActor;
+        }
+        else if (StaticMeshActor->ActorHasTag("Bear"))
+        {
+            BearPictureMesh = StaticMeshActor;
+        }
+        else if (StaticMeshActor->ActorHasTag("Box"))
+        {
+            BoxPictureMesh = StaticMeshActor;
+        }
+        else if (StaticMeshActor->ActorHasTag("Moose"))
+        {
+            MoosePictureMesh = StaticMeshActor;
+        }
+        else if (StaticMeshActor->ActorHasTag("Flashlight"))
+        {
+            FlashlightPictureMesh = StaticMeshActor;
+        }
+    }
 
     if (leftController == nullptr || rightController == nullptr)
     {
@@ -65,15 +118,6 @@ void AVRPawnMechanics::BeginPlay()
     previousRPosition = rightController->GetRelativeLocation();
     previousPosition = rootCollision->GetRelativeLocation();
 }
-
-// void AVRPawnMechanics::HandleLClimb(const FInputActionInstance& Instance)
-// {
-//     if (HeldComponentLeft.IsValid())
-//     {
-//         // Already holding something, we might want to just return
-//         return;
-//     }
-// }
 
 FVector AVRPawnMechanics::AverageVelocity(const TArray<FVector>& velocityArray) const
 {
@@ -128,4 +172,42 @@ void AVRPawnMechanics::Tick(float DeltaTime)
     lVelocities.Add(newLVelocity);
     lVelocity = AverageVelocity(lVelocities);
     previousLPosition = currentLPosition;
+
+    if (UpdatePictureFrame)
+    {
+        if (WrenchItemGrabbed)
+        {
+            WrenchPictureMesh->GetStaticMeshComponent()->SetMaterial(0, WrenchMat);
+        }
+        if (DiscItemGrabbed)
+        {
+            DiscPictureMesh->GetStaticMeshComponent()->SetMaterial(0, DiscMat);
+        }
+        if (SlenderItemGrabbed)
+        {
+            SlenderPictureMesh->GetStaticMeshComponent()->SetMaterial(0, SlenderMat);
+        }
+        if (MilkItemGrabbed)
+        {
+            MilkPictureMesh->GetStaticMeshComponent()->SetMaterial(0, MilkMat);
+        }
+        if (BearItemGrabbed)
+        {
+            BearPictureMesh->GetStaticMeshComponent()->SetMaterial(0, BearMat);
+        }
+        if (MooseItemGrabbed)
+        {
+            MoosePictureMesh->GetStaticMeshComponent()->SetMaterial(0, MooseMat);
+        }
+        if (BoxItemGrabbed)
+        {
+            BoxPictureMesh->GetStaticMeshComponent()->SetMaterial(0, BoxMat);
+        }
+        if (FlashlightItemGrabbed)
+        {
+            FlashlightPictureMesh->GetStaticMeshComponent()->SetMaterial(0, FlashlightMat);
+        }
+        UpdatePictureFrame = false;
+    }
+    
 }

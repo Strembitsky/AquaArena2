@@ -5,6 +5,7 @@
 #include "VRPawnMechanics.h"
 #include "MyPlayerController.h"
 #include "Components/AudioComponent.h"
+#include "Components/InstancedStaticMeshComponent.h"
 
 // Sets default values
 APowerManager::APowerManager()
@@ -17,6 +18,32 @@ APowerManager::APowerManager()
 void APowerManager::BeginPlay()
 {
     Super::BeginPlay();
+    UInstancedStaticMeshComponent* InstancedMeshComponent = NewObject<UInstancedStaticMeshComponent>(this);
+    
+    for (AActor* Actor : MilkActors)
+    {
+        if (Actor)
+        {
+            TArray<AActor*> ChildActors;
+            Actor->GetAllChildActors(ChildActors);
+            TArray<AStaticMeshActor*> Meshes;
+            for (AActor* Child : ChildActors)
+            {
+                AStaticMeshActor* MeshActor = Cast<AStaticMeshActor>(Child);
+                if (MeshActor)
+                {
+                    // Get the actor's transform
+                    FTransform ActorTransform = MeshActor->GetActorTransform();
+                    // Add an instance to the InstancedMeshComponent with the actor's transform
+                    InstancedMeshComponent->AddInstance(ActorTransform);
+                    // Destroy the mesh actor
+                    MeshActor->Destroy();
+                }
+            }
+            // Only destroy the actor after all its children have been processed
+            Actor->Destroy();
+        }
+    }
     TArray<AActor*> FoundActors;
     UGameplayStatics::GetAllActorsOfClass(GetWorld(), AVRPawnMechanics::StaticClass(), FoundActors);
     BeginTransition = false;
@@ -460,8 +487,8 @@ void APowerManager::TurnOffPowerSection2()
     OrangeGoalRim->GetStaticMeshComponent()->SetEnableGravity(true);
     OrangeGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     OrangeGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    OrangeBubble->SetActorHiddenInGame(true);
-    OrangeBubbleInterior->SetActorHiddenInGame(true);
+    BlueBubble->SetActorHiddenInGame(true);
+    BlueBubbleInterior->SetActorHiddenInGame(true);
     ScoreManager->OScoringAllowed = false;
     for (int32 i = 0; i < ArenaLightArray.Num(); ++i)
     {
@@ -480,8 +507,8 @@ void APowerManager::TurnOffPowerSection3()
     BlueGoalRim->GetStaticMeshComponent()->SetEnableGravity(true);
     BlueGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     BlueGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    BlueBubble->SetActorHiddenInGame(true);
-    BlueBubbleInterior->SetActorHiddenInGame(true);
+    OrangeBubble->SetActorHiddenInGame(true);
+    OrangeBubbleInterior->SetActorHiddenInGame(true);
     ScoreManager->BScoringAllowed = false;
     SlowDownMusic = true;
     ScaryLaugh->Play();

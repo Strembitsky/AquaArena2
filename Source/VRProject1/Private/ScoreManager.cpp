@@ -266,13 +266,13 @@ void AScoreManager::breakScore1()
 
 	for (ATextRenderActor* ShotStat : ShotStats)
 	{
-		FString TextString = FString::Printf(TEXT(""));
+		FString TextString = FString::Printf(TEXT("-"));
 		ShotStat->GetTextRender()->SetText(FText::FromString(TextString));
 	}
 	for (ATextRenderActor* Text : LastGoalText)
 	{
-		FString TextString = FString::Printf(TEXT(""));
-		Text->GetTextRender()->SetText(FText::FromString(TextString));
+		FString TexttString = FString::Printf(TEXT("-"));
+		Text->GetTextRender()->SetText(FText::FromString(TexttString));
 	}
 
 	OScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
@@ -306,13 +306,13 @@ void AScoreManager::breakScore2()
 
 	for (ATextRenderActor* ShotStat : ShotStats)
 	{
-		FString TextString = FString::Printf(TEXT(""));
+		FString TextString = FString::Printf(TEXT("-"));
 		ShotStat->GetTextRender()->SetText(FText::FromString(TextString));
 	}
 	for (ATextRenderActor* Text : LastGoalText)
 	{
-		FString TextString = FString::Printf(TEXT(""));
-		Text->GetTextRender()->SetText(FText::FromString(TextString));
+		FString TexttString = FString::Printf(TEXT("-"));
+		Text->GetTextRender()->SetText(FText::FromString(TexttString));
 	}
 
 	OScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
@@ -346,13 +346,13 @@ void AScoreManager::breakScore3()
 
 	for (ATextRenderActor* ShotStat : ShotStats)
 	{
-		FString TextString = FString::Printf(TEXT(""));
+		FString TextString = FString::Printf(TEXT("-"));
 		ShotStat->GetTextRender()->SetText(FText::FromString(TextString));
 	}
 	for (ATextRenderActor* Text : LastGoalText)
 	{
-		FString TextString = FString::Printf(TEXT(""));
-		Text->GetTextRender()->SetText(FText::FromString(TextString));
+		FString TexttString = FString::Printf(TEXT("-"));
+		Text->GetTextRender()->SetText(FText::FromString(TexttString));
 	}
 
 	OScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
@@ -388,8 +388,8 @@ void AScoreManager::breakScoreSection1()
 	}
 	for (ATextRenderActor* Text : LastGoalText)
 	{
-		FString TextString = FString::Printf(TEXT(""));
-		Text->GetTextRender()->SetText(FText::FromString(TextString));
+		FString TexttString = FString::Printf(TEXT("-"));
+		Text->GetTextRender()->SetText(FText::FromString(TexttString));
 	}
 }
 

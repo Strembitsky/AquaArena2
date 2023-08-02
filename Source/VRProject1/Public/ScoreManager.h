@@ -147,6 +147,12 @@ public:
 	ATextRenderActor* Hyphen2;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	TArray<ATextRenderActor*> ShotStats;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	TArray<ATextRenderActor*> LastGoalText;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	int blueScore;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")

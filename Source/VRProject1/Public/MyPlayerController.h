@@ -7,6 +7,9 @@
 #include "Camera/CameraComponent.h"
 #include "MotionControllerComponent.h"
 #include "VRPawnMechanics.h"
+#include "EngineUtils.h"
+#include "EnhancedInputComponent.h" 
+#include "EnhancedInputSubsystems.h"
 #include "MyPlayerController.generated.h"
 
 /**

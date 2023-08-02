@@ -1,7 +1,4 @@
 #include "ScoreManager.h"
-
-#include <string>
-
 #include "Components/PrimitiveComponent.h"
 #include "Components/SpotLightComponent.h"
 #include "Components/TextRenderComponent.h"
@@ -108,16 +105,25 @@ void AScoreManager::OnOverlapBegin(class AActor* OverlappedActor, class AActor* 
 		{
 			if (OtherActor->ActorHasTag("Score") && OverlappedActor == BlueGoal)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("DISTANCE TO BLUE GOAL %f"), (VRPawn->ballReleasePosition - BlueGoalRim->GetActorLocation()).Size())
-				if ((VRPawn->ballReleasePosition - BlueGoalRim->GetActorLocation()).Size() >= 1125.f)
+				float ShotDistanceInCM = (VRPawn->ballReleasePosition - BlueGoalRim->GetActorLocation()).Size();
+				float ShotWorth;
+				float ShotSpeedCM = Ball->GetVelocity().Size();
+				if (ShotDistanceInCM >= 1125.f)
 				{
-					orangeScore += 3;
+					ShotWorth = 3;
 				}
 				else
 				{
-					orangeScore += 2;
+					ShotWorth = 2;
 				}
+				UE_LOG(LogTemp, Warning, TEXT("DISTANCE TO BLUE GOAL %f"), (VRPawn->ballReleasePosition - BlueGoalRim->GetActorLocation()).Size())
+				orangeScore += ShotWorth;
 				GoalScore->Play();
+				for (ATextRenderActor* ShotStat : ShotStats)
+				{
+					FString TextString = FString::Printf(TEXT("%.0f m/s %.0f pter from %.0fm"), ShotSpeedCM / 100, ShotWorth, ShotDistanceInCM / 100);
+					ShotStat->GetTextRender()->SetText(FText::FromString(TextString));
+				}
 				OScore1->GetTextRender()->SetText(FText::AsNumber(orangeScore));
 				OScore2->GetTextRender()->SetText(FText::AsNumber(orangeScore));
 				UE_LOG(LogTemp, Warning, TEXT("Orange Score: %d"), orangeScore);
@@ -143,17 +149,25 @@ void AScoreManager::OnOverlapBegin(class AActor* OverlappedActor, class AActor* 
 			{
 			if (OtherActor->ActorHasTag("Score") && OverlappedActor == OrangeGoal)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("DISTANCE TO ORANGE GOAL %f"), (VRPawn->ballReleasePosition - OrangeGoalRim->GetActorLocation()).Size())
-				if ((VRPawn->ballReleasePosition - OrangeGoalRim->GetActorLocation()).Size() >= 1125.f)
+				float ShotDistanceInCM = (VRPawn->ballReleasePosition - OrangeGoalRim->GetActorLocation()).Size();
+				float ShotWorth;
+				float ShotSpeedCM = Ball->GetVelocity().Size();
+				if (ShotDistanceInCM >= 1125.f)
 				{
-					blueScore += 3;
+					ShotWorth = 3;
 				}
 				else
 				{
-					blueScore += 2;
+					ShotWorth = 2;
 				}
+				blueScore += ShotWorth;
 				UE_LOG(LogTemp, Warning, TEXT("Blue Score: %d"), blueScore);
 				GoalScore->Play();
+				for (ATextRenderActor* ShotStat : ShotStats)
+				{
+					FString TextString = FString::Printf(TEXT("%.0f m/s %.0f pter from %.0fm"), ShotSpeedCM / 100, ShotWorth, ShotDistanceInCM / 100);
+					ShotStat->GetTextRender()->SetText(FText::FromString(TextString));
+				}
 				BScore1->GetTextRender()->SetText(FText::AsNumber(blueScore));
 				BScore2->GetTextRender()->SetText(FText::AsNumber(blueScore));
 				if (blueScore < 6 && orangeScore < 6)
@@ -250,6 +264,17 @@ void AScoreManager::breakScore1()
 		noHopeString += "errorERRORnullErrorERROR\n";
 	}
 
+	for (ATextRenderActor* ShotStat : ShotStats)
+	{
+		FString TextString = FString::Printf(TEXT(""));
+		ShotStat->GetTextRender()->SetText(FText::FromString(TextString));
+	}
+	for (ATextRenderActor* Text : LastGoalText)
+	{
+		FString TextString = FString::Printf(TEXT(""));
+		Text->GetTextRender()->SetText(FText::FromString(TextString));
+	}
+
 	OScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
 	OScore2->GetTextRender()->SetText(FText::FromString(noHopeString));
 	BScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
@@ -277,6 +302,17 @@ void AScoreManager::breakScore2()
 	FString noHopeString = "";
 	for(int i = 0; i < 9; i++) {
 		noHopeString += "he is here do not go he is\n";
+	}
+
+	for (ATextRenderActor* ShotStat : ShotStats)
+	{
+		FString TextString = FString::Printf(TEXT(""));
+		ShotStat->GetTextRender()->SetText(FText::FromString(TextString));
+	}
+	for (ATextRenderActor* Text : LastGoalText)
+	{
+		FString TextString = FString::Printf(TEXT(""));
+		Text->GetTextRender()->SetText(FText::FromString(TextString));
 	}
 
 	OScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
@@ -308,6 +344,17 @@ void AScoreManager::breakScore3()
 		noHopeString += "NO HOPE NO HOPE NO HOPE N\n";
 	}
 
+	for (ATextRenderActor* ShotStat : ShotStats)
+	{
+		FString TextString = FString::Printf(TEXT(""));
+		ShotStat->GetTextRender()->SetText(FText::FromString(TextString));
+	}
+	for (ATextRenderActor* Text : LastGoalText)
+	{
+		FString TextString = FString::Printf(TEXT(""));
+		Text->GetTextRender()->SetText(FText::FromString(TextString));
+	}
+
 	OScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
 	OScore2->GetTextRender()->SetText(FText::FromString(noHopeString));
 	BScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
@@ -334,12 +381,27 @@ void AScoreManager::breakScoreSection1()
 	BScore2->GetTextRender()->SetText(FText::FromString("?"));
 	Hyphen1->GetTextRender()->SetText(FText::FromString("v"));
 	Hyphen2->GetTextRender()->SetText(FText::FromString("v"));
+	for (ATextRenderActor* ShotStat : ShotStats)
+	{
+		FString TextString = FString::Printf(TEXT("last goal ever"));
+		ShotStat->GetTextRender()->SetText(FText::FromString(TextString));
+	}
+	for (ATextRenderActor* Text : LastGoalText)
+	{
+		FString TextString = FString::Printf(TEXT(""));
+		Text->GetTextRender()->SetText(FText::FromString(TextString));
+	}
 }
 
 void AScoreManager::breakScoreSection2()
 {
 	OScore1->GetTextRender()->SetText(FText::FromString("?"));
 	OScore2->GetTextRender()->SetText(FText::FromString("?"));
+	for (ATextRenderActor* ShotStat : ShotStats)
+	{
+		FString TextString = FString::Printf(TEXT("never score again"));
+		ShotStat->GetTextRender()->SetText(FText::FromString(TextString));
+	}
 }
 
 void AScoreManager::Tick(float DeltaTime)
@@ -417,5 +479,16 @@ void AScoreManager::ResetScore()
 	BScore2->GetTextRender()->SetWorldSize(350);
 	Hyphen1->GetTextRender()->SetWorldSize(350);
 	Hyphen2->GetTextRender()->SetWorldSize(350);
+	for (ATextRenderActor* ShotStat : ShotStats)
+	{
+		FString TextString = FString::Printf(TEXT("none"));
+		ShotStat->GetTextRender()->SetText(FText::FromString(TextString));
+	}
+
+	for (ATextRenderActor* Text : LastGoalText)
+	{
+		FString TextString = FString::Printf(TEXT("Last Goal:"));
+		Text->GetTextRender()->SetText(FText::FromString(TextString));
+	}
 	PowerResetOnce = true;
 }

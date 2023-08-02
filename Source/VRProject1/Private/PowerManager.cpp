@@ -5,8 +5,6 @@
 #include "VRPawnMechanics.h"
 #include "MyPlayerController.h"
 #include "Components/AudioComponent.h"
-#include "EnvironmentQuery/Generators/EnvQueryGenerator_ActorsOfClass.h"
-#include "Iris/Serialization/EnumNetSerializers.h"
 
 // Sets default values
 APowerManager::APowerManager()
@@ -32,6 +30,8 @@ void APowerManager::BeginPlay()
     SlowDownMusic2 = false;
     SpeedMusicUp1 = false;
     Splatted = false;
+    paintedDecal = true;
+    SplatMoved = false;
     EnableGravityTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapEnableGravity);
     SplatTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapBeginSplat);
     BloodSplatter->SetActorHiddenInGame(true);
@@ -127,6 +127,42 @@ void APowerManager::Tick(float DeltaTime)
             {
                 Splat = AudioComp;
             }
+        }
+    }
+
+    if (Splatted)
+    {
+        if (!SplatMoved)
+        {
+            FVector CurrentDifference = VRPawn->GetActorLocation() - BloodSplatter->GetActorLocation();
+            TArray<AActor*> OverlappingActors;
+            SplatTeleportTrigger->GetOverlappingActors(OverlappingActors);
+            FVector SplatPosition = BloodSplatter->GetActorLocation();
+    
+            for (AActor* ActorToTeleport : OverlappingActors)
+            {
+                if (ActorToTeleport->ActorHasTag("ToTeleport"))
+                {
+                    ActorToTeleport->SetActorLocation(BloodSplatter2->GetActorLocation() + (ActorToTeleport->GetActorLocation() - SplatPosition), false, nullptr, ETeleportType::TeleportPhysics);
+                }
+            }
+            FVector UpdatedSplatPosition = BloodSplatter2->GetActorLocation();
+            // Then compute the new location for the VRPawn
+            FVector NewLocation = UpdatedSplatPosition + CurrentDifference;
+            VRPawn->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
+            SplatMoved = true;
+        }
+        if (paintedDecal)
+        {
+            playerPosition = VRPlayerController->rootComp->GetComponentLocation();
+            paintedDecal = false;
+        }
+        else if ((VRPlayerController->rootComp->GetComponentLocation() - playerPosition).Size() > 100.f)
+        {
+            FRotator rotator = (VRPlayerController->rootComp->GetComponentLocation() - playerPosition).GetSafeNormal().Rotation();
+            // Add a decal at the specified location and rotation
+            UDecalComponent* Decal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BloodDragDecal, FVector(90.0f), ((VRPlayerController->rootComp->GetComponentLocation() + playerPosition)/2) + FVector(-30.f, 0.f, 0.f), rotator);
+            paintedDecal = true;
         }
     }
 

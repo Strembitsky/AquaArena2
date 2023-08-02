@@ -9,6 +9,7 @@
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
 #include "Sound/AmbientSound.h"
 #include "Algo/AllOf.h"
+#include "Engine/DecalActor.h"
 #include "Engine/PointLight.h"
 #include "Engine/TriggerBox.h"
 #include "PowerManager.generated.h"
@@ -102,7 +103,10 @@ public:
 	AStaticMeshActor* Flashlight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
-	AStaticMeshActor* BloodSplatter;
+	ADecalActor* BloodSplatter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	ADecalActor* BloodSplatter2;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	AStaticMeshActor* OrangeBubble;
@@ -159,6 +163,9 @@ public:
 	ATriggerBox* SplatTrigger;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	ATriggerBox* SplatTeleportTrigger;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	AAmbientSound* PowerDown;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
@@ -200,6 +207,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	UAudioComponent* Splat;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	UMaterialInterface* BloodDragDecal;
+
 	UPROPERTY()
 	FTransform InitBallPos;
 	UPROPERTY()
@@ -218,6 +228,15 @@ public:
 	bool HallShrunk;
 	UPROPERTY()
 	bool BeginTransition;
+
+	UPROPERTY()
+	bool SplatMoved;
+
+	UPROPERTY()
+	bool paintedDecal;
+
+	UPROPERTY()
+	FVector playerPosition;
 
 	UPROPERTY()
 	bool SlowDownMusic2;

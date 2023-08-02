@@ -4,12 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "EnhancedInputComponent.h" 
 #include "GameFramework/FloatingPawnMovement.h"
 #include "MotionControllerComponent.h" 
-#include "EngineUtils.h"
-#include "GameFramework/InputSettings.h"
-#include "EnhancedInputSubsystems.h"
 #include "Components/SphereComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SceneComponent.h"
@@ -101,6 +97,30 @@ public:
     //The sphere component
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
         USphereComponent* rootCollision;
+
+    UPROPERTY()
+    bool DiscItemGrabbed;
+
+    UPROPERTY()
+    bool WrenchItemGrabbed;
+
+    UPROPERTY()
+    bool SlenderItemGrabbed;
+
+    UPROPERTY()
+    bool MilkItemGrabbed;
+
+    UPROPERTY()
+    bool BearItemGrabbed;
+
+    UPROPERTY()
+    bool MooseItemGrabbed;
+
+    UPROPERTY()
+    bool BoxItemGrabbed;
+
+    UPROPERTY()
+    bool FlashlightItemGrabbed;
 
     // void AVRPawnMechanics::HandleLClimb(const FInputActionInstance& Instance);
 

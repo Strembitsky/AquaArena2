@@ -2,8 +2,6 @@
 
 #include "VRPawnMechanics.h"
 
-#include "GenericPlatform/GenericPlatformCrashContext.h"
-
 AVRPawnMechanics::AVRPawnMechanics()
 {
 

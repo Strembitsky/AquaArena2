@@ -82,6 +82,9 @@ public:
 	UPROPERTY()
 	bool PowerIsOn;
 
+	UPROPERTY()
+	bool FlashBroke;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	TArray<APointLight*> ArenaLightArray;
 
@@ -93,6 +96,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	ASpotLight* ArenaEmissions;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	ASpotLight* FlashlightLight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	AStaticMeshActor* FlashlightLightMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	ASpotLight* ArenaEmissions2;
@@ -111,6 +120,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	AStaticMeshActor* Flashlight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AStaticMeshActor* MilkDoor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AStaticMeshActor* ArenaResetDoor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	ATriggerBox* ArenaResetTrigger;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	ADecalActor* BloodSplatter;
@@ -183,6 +201,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	AAmbientSound* LightCageLightSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	AAmbientSound* FlashBreak;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	AStaticMeshActor* LightCage;
@@ -264,6 +285,12 @@ public:
 	bool GoEnableGravity;
 
 	UPROPERTY()
+	bool GravityDisabled;
+
+	UPROPERTY()
+	bool GoDisableGravity;
+
+	UPROPERTY()
 	bool MusicPlayed;
 
 	UPROPERTY()
@@ -297,6 +324,9 @@ public:
 
 	UFUNCTION()
 	void OnOverlapEnableGravity(class AActor* OverlappedActor, class AActor* OtherActor);
+
+	UFUNCTION()
+	void OnOverlapResetGame(class AActor* OverlappedActor, class AActor* OtherActor);
 
 	UFUNCTION()
 	void OnButtonOverlapBegin(class AActor* OverlappedActor, class AActor* OtherActor);

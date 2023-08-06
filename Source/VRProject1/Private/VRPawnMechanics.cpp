@@ -1,7 +1,8 @@
 // VRPawnMechanics.cpp
 
 #include "VRPawnMechanics.h"
-
+#include "Components/AudioComponent.h"
+#include "PowerManager.h"
 #include "Kismet/GameplayStatics.h"
 
 AVRPawnMechanics::AVRPawnMechanics()
@@ -33,6 +34,7 @@ AVRPawnMechanics::AVRPawnMechanics()
     lVelocities.SetNumZeroed(FrameCount);
 
     CanPlayDragSound = false;
+    ResetGame = false;
     
 }
 
@@ -55,6 +57,11 @@ void AVRPawnMechanics::BeginPlay()
     MooseItemGrabbed = false;
     BoxItemGrabbed = false;
     FlashlightItemGrabbed = false;
+    InitiateFall = false;
+
+    TArray<AActor*> FoundPower;
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), APowerManager::StaticClass(), FoundPower);
+    PowerManager = Cast<APowerManager>(FoundPower[0]);
     
     TArray<UMotionControllerComponent*> controllers;
     GetComponents<UMotionControllerComponent>(controllers);
@@ -137,6 +144,11 @@ void AVRPawnMechanics::BeginPlay()
     previousLPosition = leftController->GetRelativeLocation();
     previousRPosition = rightController->GetRelativeLocation();
     previousPosition = rootCollision->GetRelativeLocation();
+    
+    TArray<AActor*> FoundZipFall;  // Holds the actors found
+    UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("FallFromZiplineTrigger"), FoundZipFall);
+    ZiplineFall = Cast<ATriggerBox>(FoundZipFall[0]);
+    ZiplineFall->OnActorBeginOverlap.AddDynamic(this, &AVRPawnMechanics::OnOverlapBeginZiplineFall);
 }
 
 FVector AVRPawnMechanics::AverageVelocity(const TArray<FVector>& velocityArray) const
@@ -230,4 +242,26 @@ void AVRPawnMechanics::Tick(float DeltaTime)
         UpdatePictureFrame = false;
     }
     
+}
+
+void AVRPawnMechanics::OnOverlapBeginZiplineFall(AActor* OverlappedActor, AActor* OtherActor)
+{
+    if (OtherActor->GetName().Contains("Pawn"))
+    {
+        if (!(WrenchItemGrabbed && DiscItemGrabbed && SlenderItemGrabbed && MilkItemGrabbed && BearItemGrabbed && MooseItemGrabbed && BoxItemGrabbed && FlashlightItemGrabbed))
+        {
+            InitiateFall = true;
+            Cast<USphereComponent>(rootCollision)->SetSimulatePhysics(true);
+            Cast<USphereComponent>(rootCollision)->SetEnableGravity(true);
+            TArray<UAudioComponent*> AudioComponents;
+            GetComponents<UAudioComponent>(AudioComponents);
+            for(UAudioComponent* AudioComp : AudioComponents)
+            {
+                if(AudioComp->GetName().Equals("WindFall"))
+                {
+                    AudioComp->Play();
+                }
+            }
+        }
+    }
 }

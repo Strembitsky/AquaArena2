@@ -10,7 +10,10 @@
 #include "Camera/CameraComponent.h"
 #include "Components/SceneComponent.h"
 #include "Engine/StaticMeshActor.h"
+#include "Engine/TriggerBox.h"
 #include "VRPawnMechanics.generated.h"
+
+class APowerManager;
 
 UCLASS()
 class VRPROJECT1_API AVRPawnMechanics : public APawn
@@ -22,6 +25,9 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
     USphereComponent* HeadCollision;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+    APowerManager* PowerManager;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
     UCameraComponent* Camera;
@@ -89,6 +95,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
     bool CanPlayDragSound;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+    bool InitiateFall;
+
     // UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grabbing")
     // UGrabComponent* HeldComponentLeft;
     //
@@ -125,6 +134,9 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
     bool UpdatePictureFrame;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    bool ResetGame;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
     AStaticMeshActor* DiscPictureMesh;
@@ -150,6 +162,9 @@ public:
     AStaticMeshActor* EndZipline;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zipline")
+    ATriggerBox* ZiplineFall;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zipline")
     FVector ZiplineAxis;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zipline")
@@ -174,6 +189,9 @@ public:
     UMaterialInterface* MooseMat;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
     UMaterialInterface* FlashlightMat;
+
+    UFUNCTION()
+    void OnOverlapBeginZiplineFall(class AActor* OverlappedActor, class AActor* OtherActor);
     
 
     // void AVRPawnMechanics::HandleLClimb(const FInputActionInstance& Instance);

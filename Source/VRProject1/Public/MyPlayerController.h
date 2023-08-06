@@ -51,6 +51,9 @@ public:
     UPROPERTY(EditAnywhere, Category = "Sound")
     UAudioComponent* LThrustSound;
 
+    UPROPERTY(EditAnywhere, Category = "Sound")
+    UAudioComponent* BackBoost;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
     UCameraComponent* virtualCamera;
 

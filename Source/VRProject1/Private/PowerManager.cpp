@@ -86,7 +86,10 @@ void APowerManager::BeginPlay()
     SplatMoved = false;
     EnableGravityTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapEnableGravity);
     SplatTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapBeginSplat);
+    ArenaResetTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapResetGame);
     BloodSplatter->SetActorHiddenInGame(true);
+    GravityDisabled = false;
+    GoDisableGravity = false;
 
     if (FoundActors.Num() > 0)
     {
@@ -182,8 +185,58 @@ void APowerManager::Tick(float DeltaTime)
         }
     }
 
+    if (GoDisableGravity)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("DISABLING GRAVITY NOW"));
+        Cast<USphereComponent>(VRPlayerController->rootComp)->SetSimulatePhysics(false);
+        Cast<USphereComponent>(VRPlayerController->rootComp)->SetEnableGravity(false);
+        Flashlight->GetStaticMeshComponent()->SetEnableGravity(false);
+        Cast<USphereComponent>(VRPlayerController->rootComp)->SetMassOverrideInKg(NAME_None, 0.1f);
+        Cast<USphereComponent>(VRPlayerController->rootComp)->SetSphereRadius(12.5f);
+        VRPlayerController->BoostingAllowed = true;
+        VRPlayerController->ThrustingAllowed = true;
+        VRPawn->FloatingPawn->Deceleration = 0.f;
+        GoDisableGravity = false;
+        Moonlight->SetEnabled(false);
+        BeginTransition = false;
+        MusicPlayed = false;
+        PlayMusic = false;
+        ElevatorOpened = false;
+        GravityEnabled = false;
+        ArenaCloseWall->SetActorEnableCollision(false);
+        LivingRoomSealWall->SetActorEnableCollision(false);
+        SlowDownMusic = false;
+        SlowDownMusic2 = false;
+        SpeedMusicUp1 = false;
+        Splatted = false;
+        paintedDecal = true;
+        SplatMoved = false;
+        BloodSplatter->SetActorHiddenInGame(true);
+        ScoreManager->PowerResetOnce = false;
+        ScoreManager->turnPowerBackOn1 = false;
+        ScoreManager->SecondPhaseBegun = false;
+        ScoreManager->TimeSecondPhaseBegun = 0.f;
+        ScoreManager->TurnOffPowerSection1 = false;
+        ScoreManager->TurnOffPowerSection2 = false;
+        ScoreManager->TurnOffPowerSection3 = false;
+        ScoreManager->TurnOffPowerSection4 = false;
+        ScoreManager->SecondPhaseComplete = false;
+        ScoreManager->PowerOffOnce = false;
+        ScoreManager->OScoringAllowed = true;
+        ScoreManager->BScoringAllowed = true;
+        ArenaResetDoor->SetActorHiddenInGame(false);
+        ArenaResetDoor->SetActorEnableCollision(true);
+        ScoreManager->Door1->SetActorLocation(ScoreManager->InitDoor1Pos);
+        ScoreManager->Door2->SetActorHiddenInGame(false);
+        ScoreManager->Door2->SetActorEnableCollision(true);
+        VRPawn->CanPlayDragSound = false;
+        VRPawn->FloatingPawn->Velocity = VRPawn->velocity;
+    }
+
     if (Splatted)
     {
+        ArenaResetDoor->SetActorHiddenInGame(true);
+        ArenaResetDoor->SetActorEnableCollision(false);
         if (!SplatMoved)
         {
             FVector CurrentDifference = VRPawn->GetActorLocation() - BloodSplatter->GetActorLocation();
@@ -277,6 +330,8 @@ void APowerManager::Tick(float DeltaTime)
     
     if (BeginTransition)
     {
+        MilkDoor->SetActorHiddenInGame(true);
+        MilkDoor->SetActorEnableCollision(false);
         Music2->SetActorTransform(Music->GetActorTransform());
         FVector CurrentDifference = VRPawn->GetActorLocation() - GeneratorActor->GetActorLocation();
 
@@ -705,6 +760,19 @@ void APowerManager::OnOverlapEnableGravity(AActor* OverlappedActor, AActor* Othe
     }
 }
 
+void APowerManager::OnOverlapResetGame(AActor* OverlappedActor, AActor* OtherActor)
+{
+    if (VRPawn->InitiateFall && OtherActor->GetName().Contains("Pawn"))
+    {
+        GoEnableGravity = false;
+        GravityEnabled = false;
+        GoDisableGravity = true;
+        GravityDisabled = true;
+        VRPawn->InitiateFall = false;
+        VRPawn->ResetGame = true;
+    }
+}
+
 void APowerManager::OnOverlapBeginSplat(AActor* OverlappedActor, AActor* OtherActor)
 {
     if (!Splatted && OtherActor->GetName().Contains("Pawn"))
@@ -715,6 +783,13 @@ void APowerManager::OnOverlapBeginSplat(AActor* OverlappedActor, AActor* OtherAc
         VRPawn->CanPlayDragSound = true;
         BloodSplatter->SetActorHiddenInGame(false);
         Moonlight->SetEnabled(true);
+    }
+    if (!FlashBroke && OtherActor->ActorHasTag("Flashlight"))
+    {
+        FlashBreak->Play();
+        FlashlightLight->SetEnabled(false);
+        FlashlightLightMesh->SetActorHiddenInGame(true);
+        Flashlight->Tags.Add("BrokenCollect");
     }
 }
 

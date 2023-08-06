@@ -100,6 +100,10 @@ void AMyPlayerController::BeginPlay()
                 {
                     RThrustSound = AudioComponent;
                 }
+                else if (AudioComponent->GetName() == "backBoost")
+                {
+                    BackBoost = AudioComponent;
+                }
             }
         }
         
@@ -145,6 +149,8 @@ void AMyPlayerController::HandleBoost(const FInputActionInstance& Instance)
             FVector Thrust = Forward * BoostForce;
             // Apply the thrust
             VRPawnMovement->Velocity = ClampVelocity(VRPawnMovement->Velocity, Thrust, BoostMaxSpeed);
+
+            BackBoost->Play();
 
             BoostCooldown -= 51.0f;
         }

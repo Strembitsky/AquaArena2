@@ -10,6 +10,7 @@
 #include "Sound/AmbientSound.h"
 #include "Algo/AllOf.h"
 #include "Engine/DecalActor.h"
+#include "Engine/DirectionalLight.h"
 #include "Engine/PointLight.h"
 #include "Engine/TriggerBox.h"
 #include "PowerManager.generated.h"
@@ -61,6 +62,9 @@ public:
 	TArray<AActor*> MilkActors;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	TArray<AActor*> BuildingActors;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	AScoreManager* ScoreManager;
 
 	UPROPERTY()
@@ -98,6 +102,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	APointLight* BlueLight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	ADirectionalLight* Moonlight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	AStaticMeshActor* Ball;

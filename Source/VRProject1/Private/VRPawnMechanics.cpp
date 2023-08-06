@@ -69,6 +69,26 @@ void AVRPawnMechanics::BeginPlay()
             rightController = controller;
         }
     }
+
+    TArray<AActor*> FoundStartZip;  // Holds the actors found
+    UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("StartZipline"), FoundStartZip);
+    StartZipline = Cast<AStaticMeshActor>(FoundStartZip[0]);
+    if (StartZipline)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("found start"));
+    }
+
+    TArray<AActor*> FoundEndZip;  // Holds the actors found
+    UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("EndZipline"), FoundEndZip);
+    EndZipline = Cast<AStaticMeshActor>(FoundEndZip[0]);
+    if (EndZipline)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("found end"));
+    }
+
+    ZiplineAxis = (EndZipline->GetActorLocation() - StartZipline->GetActorLocation()).GetSafeNormal();
+    ZiplineDirection = EndZipline->GetActorLocation() - StartZipline->GetActorLocation();
+    ZiplineLengthSquared = ZiplineDirection.SizeSquared();
     
     TArray<AActor*> FoundActors;  // Holds the actors found
     UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("Picture"), FoundActors);

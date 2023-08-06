@@ -18,15 +18,40 @@ APowerManager::APowerManager()
 void APowerManager::BeginPlay()
 {
     Super::BeginPlay();
-    UInstancedStaticMeshComponent* InstancedMeshComponent = NewObject<UInstancedStaticMeshComponent>(this);
+
+    Moonlight->SetEnabled(false);
     
     for (AActor* Actor : MilkActors)
     {
         if (Actor)
         {
+            UInstancedStaticMeshComponent* InstancedMeshComponent = NewObject<UInstancedStaticMeshComponent>(this);
             TArray<AActor*> ChildActors;
             Actor->GetAllChildActors(ChildActors);
-            TArray<AStaticMeshActor*> Meshes;
+            for (AActor* Child : ChildActors)
+            {
+                AStaticMeshActor* MeshActor = Cast<AStaticMeshActor>(Child);
+                if (MeshActor)
+                {
+                    // Get the actor's transform
+                    FTransform ActorTransform = MeshActor->GetActorTransform();
+                    // Add an instance to the InstancedMeshComponent with the actor's transform
+                    InstancedMeshComponent->AddInstance(ActorTransform);
+                    // Destroy the mesh actor
+                    MeshActor->Destroy();
+                }
+            }
+            // Only destroy the actor after all its children have been processed
+            Actor->Destroy();
+        }
+    }
+    for (AActor* Actor : BuildingActors)
+    {
+        if (Actor)
+        {
+            UInstancedStaticMeshComponent* InstancedMeshComponent = NewObject<UInstancedStaticMeshComponent>(this);
+            TArray<AActor*> ChildActors;
+            Actor->GetAllChildActors(ChildActors);
             for (AActor* Child : ChildActors)
             {
                 AStaticMeshActor* MeshActor = Cast<AStaticMeshActor>(Child);
@@ -235,7 +260,7 @@ void APowerManager::Tick(float DeltaTime)
 
     if (SpeedMusicUp1)
     {
-        Music->Play(50.f);
+        Music->Play(30.f);
         if (Music->GetAudioComponent()->VolumeMultiplier < 1.f)
         {
             Music->GetAudioComponent()->SetPitchMultiplier(Music->GetAudioComponent()->PitchMultiplier + 0.0025f);
@@ -689,6 +714,7 @@ void APowerManager::OnOverlapBeginSplat(AActor* OverlappedActor, AActor* OtherAc
         Splatted = true;
         VRPawn->CanPlayDragSound = true;
         BloodSplatter->SetActorHiddenInGame(false);
+        Moonlight->SetEnabled(true);
     }
 }
 

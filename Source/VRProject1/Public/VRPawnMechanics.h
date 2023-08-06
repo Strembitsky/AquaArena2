@@ -142,6 +142,22 @@ public:
     AStaticMeshActor* MoosePictureMesh;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
     AStaticMeshActor* FlashlightPictureMesh;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zipline")
+    AStaticMeshActor* StartZipline;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zipline")
+    AStaticMeshActor* EndZipline;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zipline")
+    FVector ZiplineAxis;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zipline")
+    FVector ZiplineDirection;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Zipline")
+    float ZiplineLengthSquared;
+    
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
     UMaterialInterface* DiscMat;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")

@@ -216,63 +216,76 @@ void AScoreManager::OnOverlapEndGame(class AActor* OverlappedActor, class AActor
 void AScoreManager::OpenDoor1()
 {
 	OpeningDoor1 = true;
-	Flashlight->GetStaticMeshComponent()->SetSimulatePhysics(true);
-	Flashlight->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	Flashlight->SetActorEnableCollision(true);
-	powerRef->FlashlightLightMesh->SetActorHiddenInGame(false);
-	Flashlight->SetActorHiddenInGame(false);
-	Flashlight->SetActorLocation(InitFlashlightPos.GetLocation());
-	Flashlight->SetActorEnableCollision(true);
-	FlashlightLight->SetEnabled(true);
-	FlashlightLight2->SetEnabled(true);
-	FlashlightBuzz->Play();
+	if (Flashlight)
+	{
+		Flashlight->GetStaticMeshComponent()->SetSimulatePhysics(true);
+		Flashlight->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		Flashlight->SetActorEnableCollision(true);
+		if (powerRef)
+		{
+			powerRef->FlashlightLightMesh->SetActorHiddenInGame(false);
+		}
+		Flashlight->SetActorHiddenInGame(false);
+		Flashlight->SetActorLocation(InitFlashlightPos.GetLocation());
+		Flashlight->SetActorEnableCollision(true);
+		FlashlightLight->SetEnabled(true);
+		FlashlightLight2->SetEnabled(true);
+		FlashlightBuzz->Play();
+		for (UActorComponent* Component : Flashlight->GetComponents())
+		{
+			if (UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(Component))
+			{
+				StaticMeshComponent->SetVisibility(true, true);
+			}
+			else if (ULightComponent* LightComponent = Cast<USpotLightComponent>(Component))
+			{
+				LightComponent->SetVisibility(true, true);
+			}
+		}
+		Flashlight->GetStaticMeshComponent()->SetPhysicsAngularVelocityInDegrees(FVector(0.f,0.f,60.f));
+	}
 	if (Flashlight->ActorHasTag("BrokenCollect"))
 	{
 		Flashlight->Tags.Remove("BrokenCollect");
 	}
-	BallSound->Stop();
-	powerRef->TurnPowerOff1();
-	
-	
-	for (UActorComponent* Component : Flashlight->GetComponents())
+	if (BallSound)
 	{
-		if (UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(Component))
-		{
-			StaticMeshComponent->SetVisibility(true, true);
-		}
-		else if (ULightComponent* LightComponent = Cast<USpotLightComponent>(Component))
-		{
-			LightComponent->SetVisibility(true, true);
-		}
+		BallSound->Stop();
 	}
-	Flashlight->GetStaticMeshComponent()->SetPhysicsAngularVelocityInDegrees(FVector(0.f,0.f,60.f));
+	if (powerRef)
+	{
+		powerRef->TurnPowerOff1();
+	}
 }
 
 void AScoreManager::OpenDoor2()
 {
 	OpeningDoor1 = true;
-	Flashlight->GetStaticMeshComponent()->SetSimulatePhysics(true);
-	Flashlight->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	Flashlight->SetActorEnableCollision(true);
-	Flashlight->SetActorHiddenInGame(false);
-	FlashlightLight->SetEnabled(true);
-	FlashlightLight2->SetEnabled(true);
-	Flashlight->SetActorLocation(InitFlashlightPos.GetLocation());
-	FlashlightBuzz->Play();
-	powerRef->FlashlightLightMesh->SetActorHiddenInGame(false);
-	BallSound->Stop();
-	for (UActorComponent* Component : Flashlight->GetComponents())
+	if (Flashlight)
 	{
-		if (UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(Component))
+		Flashlight->GetStaticMeshComponent()->SetSimulatePhysics(true);
+		Flashlight->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		Flashlight->SetActorEnableCollision(true);
+		Flashlight->SetActorHiddenInGame(false);
+		FlashlightLight->SetEnabled(true);
+		FlashlightLight2->SetEnabled(true);
+		Flashlight->SetActorLocation(InitFlashlightPos.GetLocation());
+		FlashlightBuzz->Play();
+		powerRef->FlashlightLightMesh->SetActorHiddenInGame(false);
+		BallSound->Stop();
+		for (UActorComponent* Component : Flashlight->GetComponents())
 		{
-			StaticMeshComponent->SetVisibility(true, true);
+			if (UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(Component))
+			{
+				StaticMeshComponent->SetVisibility(true, true);
+			}
+			else if (ULightComponent* LightComponent = Cast<USpotLightComponent>(Component))
+			{
+				LightComponent->SetVisibility(true, true);
+			}
 		}
-		else if (ULightComponent* LightComponent = Cast<USpotLightComponent>(Component))
-		{
-			LightComponent->SetVisibility(true, true);
-		}
+		Flashlight->GetStaticMeshComponent()->SetPhysicsAngularVelocityInDegrees(FVector(0.f,0.f,60.f));	
 	}
-	Flashlight->GetStaticMeshComponent()->SetPhysicsAngularVelocityInDegrees(FVector(0.f,0.f,60.f));
 }
 
 void AScoreManager::OpenDoor3()

@@ -18,7 +18,7 @@ APowerManager::APowerManager()
 void APowerManager::BeginPlay()
 {
     Super::BeginPlay();
-
+    
     Moonlight->SetEnabled(false);
     CanResetGame = false;
     FlashlightInitPos = Flashlight->GetActorLocation();
@@ -183,7 +183,7 @@ void APowerManager::Tick(float DeltaTime)
                 WindFall = AudioComp;
                 WindFall->Play();
             }
-            else if (AudioComp->GetName().Equals("Splat"))
+            else if (AudioComp->GetName().Contains("Splat"))
             {
                 Splat = AudioComp;
             }
@@ -825,7 +825,10 @@ void APowerManager::OnOverlapBeginSplat(AActor* OverlappedActor, AActor* OtherAc
     if (!Splatted && OtherActor->GetName().Contains("Pawn"))
     {
         WindFall->Stop();
-        Splat->Play();
+        if (Splat)
+        {
+            Splat->Play();
+        }
         Splatted = true;
         VRPawn->CanPlayDragSound = true;
         BloodSplatter->SetActorHiddenInGame(false);

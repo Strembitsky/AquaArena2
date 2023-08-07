@@ -110,6 +110,9 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
     bool DiscItemGrabbed;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
+    bool GravityReleased;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collectables")
     bool WrenchItemGrabbed;

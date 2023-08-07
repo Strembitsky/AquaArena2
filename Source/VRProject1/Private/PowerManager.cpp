@@ -20,6 +20,10 @@ void APowerManager::BeginPlay()
     Super::BeginPlay();
 
     Moonlight->SetEnabled(false);
+    CanResetGame = false;
+    FlashlightInitPos = Flashlight->GetActorLocation();
+    CanSwapGoals = false;
+    GoalSwapTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapBegin);
     
     for (AActor* Actor : MilkActors)
     {
@@ -86,6 +90,7 @@ void APowerManager::BeginPlay()
     SplatMoved = false;
     EnableGravityTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapEnableGravity);
     SplatTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapBeginSplat);
+    SplatTrigger2->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapBeginSplat);
     ArenaResetTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapResetGame);
     BloodSplatter->SetActorHiddenInGame(true);
     GravityDisabled = false;
@@ -190,9 +195,14 @@ void APowerManager::Tick(float DeltaTime)
         UE_LOG(LogTemp, Warning, TEXT("DISABLING GRAVITY NOW"));
         Cast<USphereComponent>(VRPlayerController->rootComp)->SetSimulatePhysics(false);
         Cast<USphereComponent>(VRPlayerController->rootComp)->SetEnableGravity(false);
-        Flashlight->GetStaticMeshComponent()->SetEnableGravity(false);
+        //Flashlight->GetStaticMeshComponent()->SetEnableGravity(false);
+        //Flashlight->SetActorEnableCollision(false);
         Cast<USphereComponent>(VRPlayerController->rootComp)->SetMassOverrideInKg(NAME_None, 0.1f);
         Cast<USphereComponent>(VRPlayerController->rootComp)->SetSphereRadius(12.5f);
+        BlueGoalRim->SetActorTransform(InitBGoalPos);
+        BlueLight->SetActorTransform(InitBLightPos);
+        OrangeGoalRim->SetActorTransform(InitOGoalPos);
+        OrangeLight->SetActorTransform(InitOLightPos);
         VRPlayerController->BoostingAllowed = true;
         VRPlayerController->ThrustingAllowed = true;
         VRPawn->FloatingPawn->Deceleration = 0.f;
@@ -201,6 +211,7 @@ void APowerManager::Tick(float DeltaTime)
         BeginTransition = false;
         MusicPlayed = false;
         PlayMusic = false;
+        HallShrunk = false;
         ElevatorOpened = false;
         GravityEnabled = false;
         ArenaCloseWall->SetActorEnableCollision(false);
@@ -231,12 +242,48 @@ void APowerManager::Tick(float DeltaTime)
         ScoreManager->Door2->SetActorEnableCollision(true);
         VRPawn->CanPlayDragSound = false;
         VRPawn->FloatingPawn->Velocity = VRPawn->velocity;
+        ScoreManager->OpeningDoor1 = false;
+        ScoreManager->Door2->SetActorLocation(ScoreManager->Door2Closed->GetActorLocation());
+        ScoreManager->blueScore = 0;
+        ScoreManager->orangeScore = 0;
+        Music->Play();
+        Music2->Reset();
+        CanSwapGoals = false;
+        GoalsSwapped = false;
+        PowerIsOn = true;
+        for (AStaticMeshActor* Element : ElementsToMakeInvisible)
+        {
+            Element->SetActorHiddenInGame(false);
+            Element->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+        }
+        for (AStaticMeshActor* Actor : SecondPhaseHallwayAdditions)
+        {
+            Actor->SetActorHiddenInGame(true);
+        }
+        InitialButtonPositions.Empty();
+        OldInitialButtonPositions.Empty();
+        ButtonsReachedMax.Empty();
+        overlappedButtons.Empty();
+        for (AStaticMeshActor* Button : ButtonArray)
+        {
+            InitialButtonPositions.Add(Button, Button->GetActorLocation());
+            OldInitialButtonPositions.Add(Button, Button->GetActorLocation());
+            Button->GetStaticMeshComponent()->SetSimulatePhysics(true);
+        }
+        for (int32 i = 0; i < ButtonArray.Num(); ++i)
+        {
+            ButtonsReachedMax.Add(false);
+            overlappedButtons.Add(false);
+        }
+        CanResetGame = false;
+        VRPawn->GravityReleased = false;
     }
 
     if (Splatted)
     {
         ArenaResetDoor->SetActorHiddenInGame(true);
         ArenaResetDoor->SetActorEnableCollision(false);
+        CanResetGame = true;
         if (!SplatMoved)
         {
             FVector CurrentDifference = VRPawn->GetActorLocation() - BloodSplatter->GetActorLocation();
@@ -404,7 +451,7 @@ void APowerManager::Tick(float DeltaTime)
                 if (Button->GetActorLocation().X >= MaxX)
                 {
                     Button->GetStaticMeshComponent()->SetSimulatePhysics(false);
-                    Button->GetStaticMeshComponent()->ComponentTags.Remove("Button");
+                    //Button->GetStaticMeshComponent()->ComponentTags.Remove("Button");
                     // Pass the index to the new function
                     PowerGenerator(Index);
                 }
@@ -414,6 +461,7 @@ void APowerManager::Tick(float DeltaTime)
         {
             if (!GoalsSwapped)
             {
+                CanSwapGoals = true;
                 TurnPowerBackOn1();
             }
             else
@@ -655,8 +703,6 @@ void APowerManager::TurnPowerBackOn1()
     OrangeGoalRim->SetActorTransform(InitOGoalPos);
     OrangeLight->SetActorTransform(InitOLightPos);
     
-    GoalSwapTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapBegin);
-
     ScoreManager->ResetScore();
     
     PowerIsOn = true;
@@ -704,7 +750,7 @@ void APowerManager::TurnPowerBackOn2()
 
 void APowerManager::OnOverlapBegin(AActor* OverlappedActor, AActor* OtherActor)
 {
-    if (!GoalsSwapped)
+    if (!GoalsSwapped && CanSwapGoals)
     {
         BlueGoalRim->SetActorTransform(InitOGoalPos);
         BlueLight->SetActorTransform(InitOLightPos);
@@ -714,6 +760,7 @@ void APowerManager::OnOverlapBegin(AActor* OverlappedActor, AActor* OtherActor)
         Ball->SetActorTransform(InitBallPos);
         InitialButtonPositions.Empty();
         GoalsSwapped = true;
+        CanSwapGoals = false;
     }
 }
 
@@ -762,7 +809,7 @@ void APowerManager::OnOverlapEnableGravity(AActor* OverlappedActor, AActor* Othe
 
 void APowerManager::OnOverlapResetGame(AActor* OverlappedActor, AActor* OtherActor)
 {
-    if (VRPawn->InitiateFall && OtherActor->GetName().Contains("Pawn"))
+    if (OtherActor->GetName().Contains("Pawn") && CanResetGame)
     {
         GoEnableGravity = false;
         GravityEnabled = false;
@@ -790,6 +837,7 @@ void APowerManager::OnOverlapBeginSplat(AActor* OverlappedActor, AActor* OtherAc
         FlashlightLight->SetEnabled(false);
         FlashlightLightMesh->SetActorHiddenInGame(true);
         Flashlight->Tags.Add("BrokenCollect");
+        FlashBroke = true;
     }
 }
 

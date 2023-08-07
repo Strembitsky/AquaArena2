@@ -12,6 +12,7 @@ AScoreManager::AScoreManager()
 void AScoreManager::BeginPlay()
 {
 	Super::BeginPlay();
+	StartTime = GetWorld()->GetTimeSeconds();
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AVRPawnMechanics::StaticClass(), FoundActors);
 	if (FoundActors.Num() > 0)
@@ -25,7 +26,7 @@ void AScoreManager::BeginPlay()
 			VRPawn = FoundVRPawn;
 		}
 	}
-	
+	TimeDisplayed = false;
 	PowerResetOnce = false;
 	turnPowerBackOn1 = false;
 	InitDoor1Pos = Door1->GetActorLocation();
@@ -77,6 +78,8 @@ void AScoreManager::BeginPlay()
 			}
 		}
 	}
+
+	EndGame->OnActorBeginOverlap.AddDynamic(this, &AScoreManager::OnOverlapEndGame);
 	
 }
 
@@ -191,15 +194,42 @@ void AScoreManager::OnOverlapBegin(class AActor* OverlappedActor, class AActor* 
 	}
 }
 
+void AScoreManager::OnOverlapEndGame(class AActor* OverlappedActor, class AActor* OtherActor)
+{
+	if (!TimeDisplayed && OtherActor->GetName().Contains("Pawn"))
+	{
+		EndTime = GetWorld()->GetTimeSeconds();
+		float ElapsedTime = EndTime - StartTime;
+		int TotalSeconds = FMath::FloorToInt(ElapsedTime);
+		int Hours = TotalSeconds / 3600;
+		int Minutes = (TotalSeconds % 3600) / 60;
+		int Seconds = TotalSeconds % 60;
+		float FractionalSeconds = ElapsedTime - TotalSeconds; // This will give a value like 0.25 for 250 milliseconds
+		EndMusic->Play();
+		FString TimeString = FString::Printf(TEXT("%02d:%02d:%02d.%02d"), Hours, Minutes, Seconds, static_cast<int>(FractionalSeconds * 100));
+		DisplayTime->GetTextRender()->SetText(FText::FromString(TimeString));
+		TimeDisplayed = true;
+	}
+}
+
+
 void AScoreManager::OpenDoor1()
 {
 	OpeningDoor1 = true;
 	Flashlight->GetStaticMeshComponent()->SetSimulatePhysics(true);
 	Flashlight->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Flashlight->SetActorEnableCollision(true);
+	powerRef->FlashlightLightMesh->SetActorHiddenInGame(false);
 	Flashlight->SetActorHiddenInGame(false);
+	Flashlight->SetActorLocation(InitFlashlightPos.GetLocation());
+	Flashlight->SetActorEnableCollision(true);
 	FlashlightLight->SetEnabled(true);
 	FlashlightLight2->SetEnabled(true);
 	FlashlightBuzz->Play();
+	if (Flashlight->ActorHasTag("BrokenCollect"))
+	{
+		Flashlight->Tags.Remove("BrokenCollect");
+	}
 	BallSound->Stop();
 	powerRef->TurnPowerOff1();
 	
@@ -223,10 +253,13 @@ void AScoreManager::OpenDoor2()
 	OpeningDoor1 = true;
 	Flashlight->GetStaticMeshComponent()->SetSimulatePhysics(true);
 	Flashlight->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Flashlight->SetActorEnableCollision(true);
 	Flashlight->SetActorHiddenInGame(false);
 	FlashlightLight->SetEnabled(true);
 	FlashlightLight2->SetEnabled(true);
+	Flashlight->SetActorLocation(InitFlashlightPos.GetLocation());
 	FlashlightBuzz->Play();
+	powerRef->FlashlightLightMesh->SetActorHiddenInGame(false);
 	BallSound->Stop();
 	for (UActorComponent* Component : Flashlight->GetComponents())
 	{

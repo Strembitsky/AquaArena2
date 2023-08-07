@@ -83,7 +83,13 @@ public:
 	bool PowerIsOn;
 
 	UPROPERTY()
+	bool CanResetGame;
+
+	UPROPERTY()
 	bool FlashBroke;
+
+	UPROPERTY()
+	FVector FlashlightInitPos;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	TArray<APointLight*> ArenaLightArray;
@@ -189,6 +195,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	ATriggerBox* SplatTrigger;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
+	ATriggerBox* SplatTrigger2;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power")
 	ATriggerBox* SplatTeleportTrigger;
@@ -259,6 +268,9 @@ public:
 	bool HallShrunk;
 	UPROPERTY()
 	bool BeginTransition;
+
+	UPROPERTY()
+	bool CanSwapGoals;
 
 	UPROPERTY()
 	bool SplatMoved;

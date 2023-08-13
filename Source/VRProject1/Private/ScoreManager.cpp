@@ -90,11 +90,18 @@ void AScoreManager::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 		FString hitActorName = OtherActor->GetName();
 		if (hitActorName == "StaticMeshActor_40" || hitActorName == "StaticMeshActor_39")
 		{
-			BallCollideHard->Play();
+			if (BallCollideHard)
+			{
+				BallCollideHard->Play();
+			}
 		}
 		else
 		{
-			BallCollideSoft->Play();	
+			if (BallCollideSoft)
+			{
+							BallCollideSoft->Play();	
+			}
+
 		}
 	}
 }
@@ -108,9 +115,17 @@ void AScoreManager::OnOverlapBegin(class AActor* OverlappedActor, class AActor* 
 		{
 			if (OtherActor->ActorHasTag("Score") && OverlappedActor == BlueGoal)
 			{
-				float ShotDistanceInCM = (VRPawn->ballReleasePosition - BlueGoalRim->GetActorLocation()).Size();
+				float ShotDistanceInCM = 0.f;
+				if (VRPawn)
+				{
+					ShotDistanceInCM = (VRPawn->ballReleasePosition - BlueGoalRim->GetActorLocation()).Size();
+				}
 				float ShotWorth;
-				float ShotSpeedCM = Ball->GetVelocity().Size();
+				float ShotSpeedCM = 0.f;
+				if (Ball)
+				{
+					ShotSpeedCM = Ball->GetVelocity().Size();
+				}
 				if (ShotDistanceInCM >= 1125.f)
 				{
 					ShotWorth = 3;
@@ -119,17 +134,23 @@ void AScoreManager::OnOverlapBegin(class AActor* OverlappedActor, class AActor* 
 				{
 					ShotWorth = 2;
 				}
-				UE_LOG(LogTemp, Warning, TEXT("DISTANCE TO BLUE GOAL %f"), (VRPawn->ballReleasePosition - BlueGoalRim->GetActorLocation()).Size())
 				orangeScore += ShotWorth;
-				GoalScore->Play();
+				if (GoalScore)
+				{
+					GoalScore->Play();
+				}
+				
 				for (ATextRenderActor* ShotStat : ShotStats)
 				{
 					FString TextString = FString::Printf(TEXT("%.0f m/s %.0f pter from %.0fm"), ShotSpeedCM / 100, ShotWorth, ShotDistanceInCM / 100);
 					ShotStat->GetTextRender()->SetText(FText::FromString(TextString));
 				}
-				OScore1->GetTextRender()->SetText(FText::AsNumber(orangeScore));
-				OScore2->GetTextRender()->SetText(FText::AsNumber(orangeScore));
-				UE_LOG(LogTemp, Warning, TEXT("Orange Score: %d"), orangeScore);
+				if (OScore1 && OScore2)
+				{
+									OScore1->GetTextRender()->SetText(FText::AsNumber(orangeScore));
+                    				OScore2->GetTextRender()->SetText(FText::AsNumber(orangeScore));
+				}
+
 				if (blueScore < 6 && orangeScore < 6)
 				{
 					if (PowerResetOnce && !PowerResetTwice && !SecondPhaseBegun)
@@ -152,9 +173,17 @@ void AScoreManager::OnOverlapBegin(class AActor* OverlappedActor, class AActor* 
 			{
 			if (OtherActor->ActorHasTag("Score") && OverlappedActor == OrangeGoal)
 			{
-				float ShotDistanceInCM = (VRPawn->ballReleasePosition - OrangeGoalRim->GetActorLocation()).Size();
+				float ShotDistanceInCM = 0.f;
+				if (VRPawn)
+				{
+					ShotDistanceInCM = (VRPawn->ballReleasePosition - OrangeGoalRim->GetActorLocation()).Size();
+				}
 				float ShotWorth;
-				float ShotSpeedCM = Ball->GetVelocity().Size();
+				float ShotSpeedCM = 0.f;
+				if (Ball)
+				{
+					ShotSpeedCM = Ball->GetVelocity().Size();
+				}
 				if (ShotDistanceInCM >= 1125.f)
 				{
 					ShotWorth = 3;
@@ -164,15 +193,22 @@ void AScoreManager::OnOverlapBegin(class AActor* OverlappedActor, class AActor* 
 					ShotWorth = 2;
 				}
 				blueScore += ShotWorth;
-				UE_LOG(LogTemp, Warning, TEXT("Blue Score: %d"), blueScore);
-				GoalScore->Play();
+				if (GoalScore)
+				{
+					GoalScore->Play();
+				}
+				
 				for (ATextRenderActor* ShotStat : ShotStats)
 				{
 					FString TextString = FString::Printf(TEXT("%.0f m/s %.0f pter from %.0fm"), ShotSpeedCM / 100, ShotWorth, ShotDistanceInCM / 100);
 					ShotStat->GetTextRender()->SetText(FText::FromString(TextString));
 				}
-				BScore1->GetTextRender()->SetText(FText::AsNumber(blueScore));
-				BScore2->GetTextRender()->SetText(FText::AsNumber(blueScore));
+				if (BScore1 && BScore2)
+				{
+									BScore1->GetTextRender()->SetText(FText::AsNumber(blueScore));
+                    				BScore2->GetTextRender()->SetText(FText::AsNumber(blueScore));
+				}
+
 				if (blueScore < 6 && orangeScore < 6)
 				{
 					if (PowerResetOnce && !PowerResetTwice && !SecondPhaseBegun)
@@ -205,9 +241,17 @@ void AScoreManager::OnOverlapEndGame(class AActor* OverlappedActor, class AActor
 		int Minutes = (TotalSeconds % 3600) / 60;
 		int Seconds = TotalSeconds % 60;
 		float FractionalSeconds = ElapsedTime - TotalSeconds; // This will give a value like 0.25 for 250 milliseconds
-		EndMusic->Play();
+		if (EndMusic)
+		{
+			EndMusic->Play();
+		}
+		
 		FString TimeString = FString::Printf(TEXT("%02d:%02d:%02d.%02d"), Hours, Minutes, Seconds, static_cast<int>(FractionalSeconds * 100));
-		DisplayTime->GetTextRender()->SetText(FText::FromString(TimeString));
+		if (DisplayTime)
+		{
+			DisplayTime->GetTextRender()->SetText(FText::FromString(TimeString));
+		}
+		
 		TimeDisplayed = true;
 	}
 }
@@ -290,12 +334,20 @@ void AScoreManager::OpenDoor2()
 
 void AScoreManager::OpenDoor3()
 {
-	Door2->SetActorLocation(Door2Open->GetActorLocation());
+	if (Door2)
+	{
+		Door2->SetActorLocation(Door2Open->GetActorLocation());
+	}
+	
 }
 
 void AScoreManager::BeginSecondPhase()
 {
-	Door1->SetActorLocation(InitDoor1Pos);
+	if (Door1)
+	{
+		Door1->SetActorLocation(InitDoor1Pos);
+	}
+	
 	TimeSecondPhaseBegun = GetWorld()->GetTimeSeconds();
 	SecondPhaseBegun = true;
 	OpeningDoor1 = false;
@@ -321,24 +373,28 @@ void AScoreManager::breakScore1()
 		Text->GetTextRender()->SetText(FText::FromString(TexttString));
 	}
 
-	OScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
-	OScore2->GetTextRender()->SetText(FText::FromString(noHopeString));
-	BScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
-	BScore2->GetTextRender()->SetText(FText::FromString(noHopeString));
-	Hyphen1->GetTextRender()->SetText(FText::FromString("nullPTRexceptEXCEPTION\nIS BLANK OR EMPTY\nNULL NULL NULL NULL"));
-	Hyphen2->GetTextRender()->SetText(FText::FromString("nullPTRexceptEXCEPTION\nIS BLANK OR EMPTY\nNULL NULL NULL NULL"));
-	OScore1->GetTextRender()->SetWorldSize(30);
-	OScore2->GetTextRender()->SetWorldSize(30);
-	BScore1->GetTextRender()->SetWorldSize(30);
-	BScore2->GetTextRender()->SetWorldSize(30);
-	Hyphen1->GetTextRender()->SetWorldSize(60);
-	Hyphen2->GetTextRender()->SetWorldSize(60);
-	OScore1->GetTextRender()->TextRenderColor = FColor::White;
-	OScore2->GetTextRender()->TextRenderColor = FColor::White;
-	Hyphen1->GetTextRender()->TextRenderColor = FColor::Red;
-	Hyphen2->GetTextRender()->TextRenderColor = FColor::Red;
-	BScore1->GetTextRender()->TextRenderColor = FColor::White;
-	BScore2->GetTextRender()->TextRenderColor = FColor::White;
+	if (OScore1 && OScore2 && Hyphen1 && Hyphen2 && BScore1 && BScore2)
+	{
+			OScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
+        	OScore2->GetTextRender()->SetText(FText::FromString(noHopeString));
+        	BScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
+        	BScore2->GetTextRender()->SetText(FText::FromString(noHopeString));
+        	Hyphen1->GetTextRender()->SetText(FText::FromString("nullPTRexceptEXCEPTION\nIS BLANK OR EMPTY\nNULL NULL NULL NULL"));
+        	Hyphen2->GetTextRender()->SetText(FText::FromString("nullPTRexceptEXCEPTION\nIS BLANK OR EMPTY\nNULL NULL NULL NULL"));
+        	OScore1->GetTextRender()->SetWorldSize(30);
+        	OScore2->GetTextRender()->SetWorldSize(30);
+        	BScore1->GetTextRender()->SetWorldSize(30);
+        	BScore2->GetTextRender()->SetWorldSize(30);
+        	Hyphen1->GetTextRender()->SetWorldSize(60);
+        	Hyphen2->GetTextRender()->SetWorldSize(60);
+        	OScore1->GetTextRender()->TextRenderColor = FColor::White;
+        	OScore2->GetTextRender()->TextRenderColor = FColor::White;
+        	Hyphen1->GetTextRender()->TextRenderColor = FColor::Red;
+        	Hyphen2->GetTextRender()->TextRenderColor = FColor::Red;
+        	BScore1->GetTextRender()->TextRenderColor = FColor::White;
+        	BScore2->GetTextRender()->TextRenderColor = FColor::White;
+	}
+
 }
 
 void AScoreManager::breakScore2()
@@ -360,25 +416,27 @@ void AScoreManager::breakScore2()
 		FString TexttString = FString::Printf(TEXT("-"));
 		Text->GetTextRender()->SetText(FText::FromString(TexttString));
 	}
-
-	OScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
-	OScore2->GetTextRender()->SetText(FText::FromString(noHopeString));
-	BScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
-	BScore2->GetTextRender()->SetText(FText::FromString(noHopeString));
-	Hyphen1->GetTextRender()->SetText(FText::FromString("STAYhereSTAYdontGOdontGO\nDONTgoDONTgoDONTgo\nSTAYstaySTAY"));
-	Hyphen2->GetTextRender()->SetText(FText::FromString("STAYhereSTAYdontGOdontGO\nDONTgoDONTgoDONTgo\nSTAYstaySTAY"));
-	OScore1->GetTextRender()->SetWorldSize(30);
-	OScore2->GetTextRender()->SetWorldSize(30);
-	BScore1->GetTextRender()->SetWorldSize(30);
-	BScore2->GetTextRender()->SetWorldSize(30);
-	Hyphen1->GetTextRender()->SetWorldSize(60);
-	Hyphen2->GetTextRender()->SetWorldSize(60);
-	OScore1->GetTextRender()->TextRenderColor = FColor::White;
-	OScore2->GetTextRender()->TextRenderColor = FColor::White;
-	Hyphen1->GetTextRender()->TextRenderColor = FColor::Red;
-	Hyphen2->GetTextRender()->TextRenderColor = FColor::Red;
-	BScore1->GetTextRender()->TextRenderColor = FColor::White;
-	BScore2->GetTextRender()->TextRenderColor = FColor::White;
+	if (OScore1 && OScore2 && Hyphen1 && Hyphen2 && BScore1 && BScore2)
+	{
+		OScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
+		OScore2->GetTextRender()->SetText(FText::FromString(noHopeString));
+		BScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
+		BScore2->GetTextRender()->SetText(FText::FromString(noHopeString));
+		Hyphen1->GetTextRender()->SetText(FText::FromString("STAYhereSTAYdontGOdontGO\nDONTgoDONTgoDONTgo\nSTAYstaySTAY"));
+		Hyphen2->GetTextRender()->SetText(FText::FromString("STAYhereSTAYdontGOdontGO\nDONTgoDONTgoDONTgo\nSTAYstaySTAY"));
+		OScore1->GetTextRender()->SetWorldSize(30);
+		OScore2->GetTextRender()->SetWorldSize(30);
+		BScore1->GetTextRender()->SetWorldSize(30);
+		BScore2->GetTextRender()->SetWorldSize(30);
+		Hyphen1->GetTextRender()->SetWorldSize(60);
+		Hyphen2->GetTextRender()->SetWorldSize(60);
+		OScore1->GetTextRender()->TextRenderColor = FColor::White;
+		OScore2->GetTextRender()->TextRenderColor = FColor::White;
+		Hyphen1->GetTextRender()->TextRenderColor = FColor::Red;
+		Hyphen2->GetTextRender()->TextRenderColor = FColor::Red;
+		BScore1->GetTextRender()->TextRenderColor = FColor::White;
+		BScore2->GetTextRender()->TextRenderColor = FColor::White;
+	}
 }
 
 void AScoreManager::breakScore3()
@@ -400,33 +458,39 @@ void AScoreManager::breakScore3()
 		FString TexttString = FString::Printf(TEXT("-"));
 		Text->GetTextRender()->SetText(FText::FromString(TexttString));
 	}
-
-	OScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
-	OScore2->GetTextRender()->SetText(FText::FromString(noHopeString));
-	BScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
-	BScore2->GetTextRender()->SetText(FText::FromString(noHopeString));
-	Hyphen1->GetTextRender()->SetText(FText::FromString("helpMEHELPMEhelpmeHELPME\nHELP HELP HELP\nme me me"));
-	Hyphen2->GetTextRender()->SetText(FText::FromString("helpMEHELPMEhelpmeHELPME\nHELP HELP HELP\nme me me"));
-	OScore1->GetTextRender()->SetWorldSize(30);
-	OScore2->GetTextRender()->SetWorldSize(30);
-	BScore1->GetTextRender()->SetWorldSize(30);
-	BScore2->GetTextRender()->SetWorldSize(30);
-	Hyphen1->GetTextRender()->SetWorldSize(60);
-	Hyphen2->GetTextRender()->SetWorldSize(60);
-	OScore1->GetTextRender()->TextRenderColor = FColor::White;
-	OScore2->GetTextRender()->TextRenderColor = FColor::White;
-	Hyphen1->GetTextRender()->TextRenderColor = FColor::Red;
-	Hyphen2->GetTextRender()->TextRenderColor = FColor::Red;
-	BScore1->GetTextRender()->TextRenderColor = FColor::White;
-	BScore2->GetTextRender()->TextRenderColor = FColor::White;
+	if (OScore1 && OScore2 && Hyphen1 && Hyphen2 && BScore1 && BScore2)
+	{
+		OScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
+		OScore2->GetTextRender()->SetText(FText::FromString(noHopeString));
+		BScore1->GetTextRender()->SetText(FText::FromString(noHopeString));
+		BScore2->GetTextRender()->SetText(FText::FromString(noHopeString));
+		Hyphen1->GetTextRender()->SetText(FText::FromString("helpMEHELPMEhelpmeHELPME\nHELP HELP HELP\nme me me"));
+		Hyphen2->GetTextRender()->SetText(FText::FromString("helpMEHELPMEhelpmeHELPME\nHELP HELP HELP\nme me me"));
+		OScore1->GetTextRender()->SetWorldSize(30);
+		OScore2->GetTextRender()->SetWorldSize(30);
+		BScore1->GetTextRender()->SetWorldSize(30);
+		BScore2->GetTextRender()->SetWorldSize(30);
+		Hyphen1->GetTextRender()->SetWorldSize(60);
+		Hyphen2->GetTextRender()->SetWorldSize(60);
+		OScore1->GetTextRender()->TextRenderColor = FColor::White;
+		OScore2->GetTextRender()->TextRenderColor = FColor::White;
+		Hyphen1->GetTextRender()->TextRenderColor = FColor::Red;
+		Hyphen2->GetTextRender()->TextRenderColor = FColor::Red;
+		BScore1->GetTextRender()->TextRenderColor = FColor::White;
+		BScore2->GetTextRender()->TextRenderColor = FColor::White;
+	}
 }
 
 void AScoreManager::breakScoreSection1()
 {
-	BScore1->GetTextRender()->SetText(FText::FromString("?"));
-	BScore2->GetTextRender()->SetText(FText::FromString("?"));
-	Hyphen1->GetTextRender()->SetText(FText::FromString("v"));
-	Hyphen2->GetTextRender()->SetText(FText::FromString("v"));
+	if (BScore1 && BScore2 && Hyphen1 && Hyphen2)
+	{
+			BScore1->GetTextRender()->SetText(FText::FromString("?"));
+        	BScore2->GetTextRender()->SetText(FText::FromString("?"));
+        	Hyphen1->GetTextRender()->SetText(FText::FromString("v"));
+        	Hyphen2->GetTextRender()->SetText(FText::FromString("v"));
+	}
+
 	for (ATextRenderActor* ShotStat : ShotStats)
 	{
 		FString TextString = FString::Printf(TEXT("last goal ever"));
@@ -441,8 +505,12 @@ void AScoreManager::breakScoreSection1()
 
 void AScoreManager::breakScoreSection2()
 {
-	OScore1->GetTextRender()->SetText(FText::FromString("?"));
-	OScore2->GetTextRender()->SetText(FText::FromString("?"));
+	if (OScore1 && OScore2)
+	{
+		OScore1->GetTextRender()->SetText(FText::FromString("?"));
+    	OScore2->GetTextRender()->SetText(FText::FromString("?"));	
+	}
+
 	for (ATextRenderActor* ShotStat : ShotStats)
 	{
 		FString TextString = FString::Printf(TEXT("never score again"));
@@ -453,48 +521,62 @@ void AScoreManager::breakScoreSection2()
 void AScoreManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	if (Door1)
+	{
 	if (OpeningDoor1 && 
 		(FVector::Dist(Door1->GetActorLocation(), Door1Open->GetActorLocation()) > KINDA_SMALL_NUMBER))
-		//
-		// && 
-		// (FVector::Dist(Door2->GetActorLocation(), Door2Open->GetActorLocation()) > KINDA_SMALL_NUMBER))
-	{
+			//
+			// && 
+			// (FVector::Dist(Door2->GetActorLocation(), Door2Open->GetActorLocation()) > KINDA_SMALL_NUMBER))
+			{
 		FVector NewLocation1 = FMath::VInterpTo(Door1->GetActorLocation(), Door1Open->GetActorLocation(), DeltaTime, 0.1f);
 		Door1->SetActorLocation(NewLocation1);
 		
 		// FVector NewLocation2 = FMath::VInterpTo(Door2->GetActorLocation(), Door2Open->GetActorLocation(), DeltaTime, 0.1f);
 		// Door2->SetActorLocation(NewLocation2);
-	}
+			}
 
 	else if (OpeningDoor1)
 	{
 		OpeningDoor1 = false;
 	}
-
+	}
 	if (SecondPhaseBegun && !SecondPhaseComplete)
 	{
 		float currentTime = GetWorld()->GetTimeSeconds();
 		if ((currentTime - TimeSecondPhaseBegun > 10.f) && !TurnOffPowerSection1)
 		{
-			powerRef->TurnOffPowerSection1();
+			if (powerRef)
+			{
+							powerRef->TurnOffPowerSection1();
+			}
+
 			TurnOffPowerSection1 = true;
 		}
 		else if ((currentTime - TimeSecondPhaseBegun > 30.f) && !TurnOffPowerSection2)
 		{
-			powerRef->TurnOffPowerSection2();
-			breakScoreSection1();
+			if (powerRef)
+			{
+				powerRef->TurnOffPowerSection2();
+				breakScoreSection1();
+			}
 			TurnOffPowerSection2 = true;
 		}
 		else if ((currentTime - TimeSecondPhaseBegun > 45.f) && !TurnOffPowerSection3)
 		{
-			powerRef->TurnOffPowerSection3();
+			if (powerRef)
+			{
+				powerRef->TurnOffPowerSection3();
+			}
 			breakScoreSection2();
 			TurnOffPowerSection3 = true;
 		}
 		else if ((currentTime - TimeSecondPhaseBegun > 50.f) && !TurnOffPowerSection4)
 		{
-			powerRef->TurnOffPowerSection4();
+			if (powerRef)
+			{
+				powerRef->TurnOffPowerSection4();
+			}
 			TurnOffPowerSection4 = true;
 			OpenDoor2();
 			breakScore2();
@@ -504,27 +586,34 @@ void AScoreManager::Tick(float DeltaTime)
 
 void AScoreManager::ResetScore()
 {
-	BallSound->Play();
+	if (BallSound)
+	{
+		BallSound->Play();
+	}
+	
 	orangeScore = 0;
 	blueScore = 0;
-	OScore1->GetTextRender()->SetText(FText::AsNumber(orangeScore));
-	OScore2->GetTextRender()->SetText(FText::AsNumber(orangeScore));
-	BScore1->GetTextRender()->SetText(FText::AsNumber(blueScore));
-	BScore2->GetTextRender()->SetText(FText::AsNumber(blueScore));
-	Hyphen1->GetTextRender()->SetText(FText::FromString("-"));
-	Hyphen2->GetTextRender()->SetText(FText::FromString("-"));
-	OScore1->GetTextRender()->TextRenderColor = OTextColor;
-	OScore2->GetTextRender()->TextRenderColor = OTextColor;
-	Hyphen1->GetTextRender()->TextRenderColor = FColor::White;
-	Hyphen2->GetTextRender()->TextRenderColor = FColor::White;
-	BScore1->GetTextRender()->TextRenderColor = BTextColor;
-	BScore2->GetTextRender()->TextRenderColor = BTextColor;
-	OScore1->GetTextRender()->SetWorldSize(350);
-	OScore2->GetTextRender()->SetWorldSize(350);
-	BScore1->GetTextRender()->SetWorldSize(350);
-	BScore2->GetTextRender()->SetWorldSize(350);
-	Hyphen1->GetTextRender()->SetWorldSize(350);
-	Hyphen2->GetTextRender()->SetWorldSize(350);
+	if (OScore1 && OScore2 && Hyphen1 && Hyphen2 && BScore1 && BScore2)
+	{
+		OScore1->GetTextRender()->SetText(FText::AsNumber(orangeScore));
+		OScore2->GetTextRender()->SetText(FText::AsNumber(orangeScore));
+		BScore1->GetTextRender()->SetText(FText::AsNumber(blueScore));
+		BScore2->GetTextRender()->SetText(FText::AsNumber(blueScore));
+		Hyphen1->GetTextRender()->SetText(FText::FromString("-"));
+		Hyphen2->GetTextRender()->SetText(FText::FromString("-"));
+		OScore1->GetTextRender()->TextRenderColor = OTextColor;
+		OScore2->GetTextRender()->TextRenderColor = OTextColor;
+		Hyphen1->GetTextRender()->TextRenderColor = FColor::White;
+		Hyphen2->GetTextRender()->TextRenderColor = FColor::White;
+		BScore1->GetTextRender()->TextRenderColor = BTextColor;
+		BScore2->GetTextRender()->TextRenderColor = BTextColor;
+		OScore1->GetTextRender()->SetWorldSize(350);
+		OScore2->GetTextRender()->SetWorldSize(350);
+		BScore1->GetTextRender()->SetWorldSize(350);
+		BScore2->GetTextRender()->SetWorldSize(350);
+		Hyphen1->GetTextRender()->SetWorldSize(350);
+		Hyphen2->GetTextRender()->SetWorldSize(350);
+	}
 	for (ATextRenderActor* ShotStat : ShotStats)
 	{
 		FString TextString = FString::Printf(TEXT("none"));

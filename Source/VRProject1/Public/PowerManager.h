@@ -270,6 +270,16 @@ public:
 	bool BeginTransition;
 
 	UPROPERTY()
+	bool HallwayShrunkAdded;
+
+	UPROPERTY()
+	bool MusicTriggerAdded;
+
+	UPROPERTY()
+	bool CloseArenaOpenElevatorAdded;
+	
+
+	UPROPERTY()
 	bool CanSwapGoals;
 
 	UPROPERTY()

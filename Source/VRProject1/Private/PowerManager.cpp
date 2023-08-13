@@ -18,7 +18,10 @@ APowerManager::APowerManager()
 void APowerManager::BeginPlay()
 {
     Super::BeginPlay();
-    
+
+    HallwayShrunkAdded = false;
+    MusicTriggerAdded = false;
+    CloseArenaOpenElevatorAdded = false;
     Moonlight->SetEnabled(false);
     CanResetGame = false;
     FlashlightInitPos = Flashlight->GetActorLocation();
@@ -159,20 +162,34 @@ void APowerManager::Tick(float DeltaTime)
 
     if (Cast<USphereComponent>(VRPlayerController->rootComp)->IsGravityEnabled())
     {
-        VRPawn->FloatingPawn->Velocity.Z = 0.f;
+        if (VRPawn)
+        {
+            VRPawn->FloatingPawn->Velocity.Z = 0.f;
+        }
     }
 
     if (GoEnableGravity)
     {
         UE_LOG(LogTemp, Warning, TEXT("ENABLING GRAVITY NOW"));
-        Cast<USphereComponent>(VRPlayerController->rootComp)->SetSimulatePhysics(true);
-        Cast<USphereComponent>(VRPlayerController->rootComp)->SetEnableGravity(true);
-        Flashlight->GetStaticMeshComponent()->SetEnableGravity(true);
-        Cast<USphereComponent>(VRPlayerController->rootComp)->SetMassOverrideInKg(NAME_None, 0.1f);
-        Cast<USphereComponent>(VRPlayerController->rootComp)->SetSphereRadius(17.5f);
-        VRPlayerController->BoostingAllowed = false;
-        VRPlayerController->ThrustingAllowed = false;
-        VRPawn->FloatingPawn->Deceleration = 1000.f;
+        if (VRPlayerController)
+        {
+            Cast<USphereComponent>(VRPlayerController->rootComp)->SetSimulatePhysics(true);
+            Cast<USphereComponent>(VRPlayerController->rootComp)->SetEnableGravity(true);
+            if (Flashlight)
+            {
+                Flashlight->GetStaticMeshComponent()->SetEnableGravity(true);
+            }
+            Cast<USphereComponent>(VRPlayerController->rootComp)->SetMassOverrideInKg(NAME_None, 0.1f);
+            Cast<USphereComponent>(VRPlayerController->rootComp)->SetSphereRadius(17.5f);
+            VRPlayerController->BoostingAllowed = false;
+            VRPlayerController->ThrustingAllowed = false;
+            VRPlayerController->BoostingAllowed = false;
+            VRPlayerController->ThrustingAllowed = false;
+        }
+        if (VRPawn)
+        {
+            VRPawn->FloatingPawn->Deceleration = 1000.f;
+        }
         GoEnableGravity = false;
         TArray<UAudioComponent*> AudioComponents;
         VRPawn->GetComponents<UAudioComponent>(AudioComponents);
@@ -193,61 +210,93 @@ void APowerManager::Tick(float DeltaTime)
     if (GoDisableGravity)
     {
         UE_LOG(LogTemp, Warning, TEXT("DISABLING GRAVITY NOW"));
-        Cast<USphereComponent>(VRPlayerController->rootComp)->SetSimulatePhysics(false);
-        Cast<USphereComponent>(VRPlayerController->rootComp)->SetEnableGravity(false);
-        //Flashlight->GetStaticMeshComponent()->SetEnableGravity(false);
-        //Flashlight->SetActorEnableCollision(false);
-        Cast<USphereComponent>(VRPlayerController->rootComp)->SetMassOverrideInKg(NAME_None, 0.1f);
-        Cast<USphereComponent>(VRPlayerController->rootComp)->SetSphereRadius(12.5f);
-        BlueGoalRim->SetActorTransform(InitBGoalPos);
-        BlueLight->SetActorTransform(InitBLightPos);
-        OrangeGoalRim->SetActorTransform(InitOGoalPos);
-        OrangeLight->SetActorTransform(InitOLightPos);
-        VRPlayerController->BoostingAllowed = true;
-        VRPlayerController->ThrustingAllowed = true;
-        VRPawn->FloatingPawn->Deceleration = 0.f;
-        GoDisableGravity = false;
-        Moonlight->SetEnabled(false);
+        if (VRPlayerController)
+        {
+            Cast<USphereComponent>(VRPlayerController->rootComp)->SetSimulatePhysics(false);
+            Cast<USphereComponent>(VRPlayerController->rootComp)->SetEnableGravity(false);
+            //Flashlight->GetStaticMeshComponent()->SetEnableGravity(false);
+            //Flashlight->SetActorEnableCollision(false);
+            Cast<USphereComponent>(VRPlayerController->rootComp)->SetMassOverrideInKg(NAME_None, 0.1f);
+            Cast<USphereComponent>(VRPlayerController->rootComp)->SetSphereRadius(12.5f);
+            if (BlueGoalRim && BlueLight && OrangeGoalRim && OrangeLight)
+            {
+                BlueGoalRim->SetActorTransform(InitBGoalPos);
+                BlueLight->SetActorTransform(InitBLightPos);
+                OrangeGoalRim->SetActorTransform(InitOGoalPos);
+                OrangeLight->SetActorTransform(InitOLightPos);
+            }
+            VRPlayerController->BoostingAllowed = true;
+            VRPlayerController->ThrustingAllowed = true;
+            if (VRPawn)
+            {
+                VRPawn->FloatingPawn->Deceleration = 0.f;
+
+            }
+            GoDisableGravity = false;
+            if (Moonlight)
+            {
+                Moonlight->SetEnabled(false);
+            }
+        }
         BeginTransition = false;
         MusicPlayed = false;
         PlayMusic = false;
         HallShrunk = false;
         ElevatorOpened = false;
         GravityEnabled = false;
-        ArenaCloseWall->SetActorEnableCollision(false);
-        LivingRoomSealWall->SetActorEnableCollision(false);
+        if (ArenaCloseWall && LivingRoomSealWall)
+        {
+            ArenaCloseWall->SetActorEnableCollision(false);
+            LivingRoomSealWall->SetActorEnableCollision(false);
+        }
         SlowDownMusic = false;
         SlowDownMusic2 = false;
         SpeedMusicUp1 = false;
         Splatted = false;
         paintedDecal = true;
         SplatMoved = false;
-        BloodSplatter->SetActorHiddenInGame(true);
-        ScoreManager->PowerResetOnce = false;
-        ScoreManager->turnPowerBackOn1 = false;
-        ScoreManager->SecondPhaseBegun = false;
-        ScoreManager->TimeSecondPhaseBegun = 0.f;
-        ScoreManager->TurnOffPowerSection1 = false;
-        ScoreManager->TurnOffPowerSection2 = false;
-        ScoreManager->TurnOffPowerSection3 = false;
-        ScoreManager->TurnOffPowerSection4 = false;
-        ScoreManager->SecondPhaseComplete = false;
-        ScoreManager->PowerOffOnce = false;
-        ScoreManager->OScoringAllowed = true;
-        ScoreManager->BScoringAllowed = true;
-        ArenaResetDoor->SetActorHiddenInGame(false);
-        ArenaResetDoor->SetActorEnableCollision(true);
-        ScoreManager->Door1->SetActorLocation(ScoreManager->InitDoor1Pos);
-        ScoreManager->Door2->SetActorHiddenInGame(false);
-        ScoreManager->Door2->SetActorEnableCollision(true);
-        VRPawn->CanPlayDragSound = false;
-        VRPawn->FloatingPawn->Velocity = VRPawn->velocity;
-        ScoreManager->OpeningDoor1 = false;
-        ScoreManager->Door2->SetActorLocation(ScoreManager->Door2Closed->GetActorLocation());
-        ScoreManager->blueScore = 0;
-        ScoreManager->orangeScore = 0;
-        Music->Play();
-        Music2->Reset();
+        if (BloodSplatter)
+        {
+            BloodSplatter->SetActorHiddenInGame(true);
+        }
+        if (ScoreManager)
+        {
+            ScoreManager->PowerResetOnce = false;
+            ScoreManager->turnPowerBackOn1 = false;
+            ScoreManager->SecondPhaseBegun = false;
+            ScoreManager->TimeSecondPhaseBegun = 0.f;
+            ScoreManager->TurnOffPowerSection1 = false;
+            ScoreManager->TurnOffPowerSection2 = false;
+            ScoreManager->TurnOffPowerSection3 = false;
+            ScoreManager->TurnOffPowerSection4 = false;
+            ScoreManager->SecondPhaseComplete = false;
+            ScoreManager->PowerOffOnce = false;
+            ScoreManager->OScoringAllowed = true;
+            ScoreManager->BScoringAllowed = true;
+            ScoreManager->Door1->SetActorLocation(ScoreManager->InitDoor1Pos);
+            ScoreManager->Door2->SetActorHiddenInGame(false);
+            ScoreManager->Door2->SetActorEnableCollision(true);
+            ScoreManager->OpeningDoor1 = false;
+            ScoreManager->Door2->SetActorLocation(ScoreManager->Door2Closed->GetActorLocation());
+            ScoreManager->blueScore = 0;
+            ScoreManager->orangeScore = 0;
+        }
+        if (ArenaResetDoor)
+        {
+            ArenaResetDoor->SetActorHiddenInGame(false);
+            ArenaResetDoor->SetActorEnableCollision(true); 
+        }
+        if (VRPawn)
+        {
+            VRPawn->CanPlayDragSound = false;
+            VRPawn->FloatingPawn->Velocity = VRPawn->velocity; 
+        }
+
+        if (Music && Music2)
+        {
+            Music->Play();
+            Music2->Reset();
+        }
         CanSwapGoals = false;
         GoalsSwapped = false;
         PowerIsOn = true;
@@ -276,19 +325,29 @@ void APowerManager::Tick(float DeltaTime)
             overlappedButtons.Add(false);
         }
         CanResetGame = false;
-        VRPawn->GravityReleased = false;
+        if (VRPawn)
+        {
+            VRPawn->GravityReleased = false;
+        }
     }
 
     if (Splatted)
     {
-        ArenaResetDoor->SetActorHiddenInGame(true);
-        ArenaResetDoor->SetActorEnableCollision(false);
+        if (ArenaResetDoor)
+        {
+            ArenaResetDoor->SetActorHiddenInGame(true);
+            ArenaResetDoor->SetActorEnableCollision(false);
+        }
         CanResetGame = true;
         if (!SplatMoved)
         {
             FVector CurrentDifference = VRPawn->GetActorLocation() - BloodSplatter->GetActorLocation();
             TArray<AActor*> OverlappingActors;
-            SplatTeleportTrigger->GetOverlappingActors(OverlappingActors);
+            if (SplatTeleportTrigger)
+            {
+                SplatTeleportTrigger->GetOverlappingActors(OverlappingActors);
+            }
+            
             FVector SplatPosition = BloodSplatter->GetActorLocation();
     
             for (AActor* ActorToTeleport : OverlappingActors)
@@ -301,12 +360,19 @@ void APowerManager::Tick(float DeltaTime)
             FVector UpdatedSplatPosition = BloodSplatter2->GetActorLocation();
             // Then compute the new location for the VRPawn
             FVector NewLocation = UpdatedSplatPosition + CurrentDifference;
-            VRPawn->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
+            if (VRPawn)
+            {
+                VRPawn->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
+            }
+            
             SplatMoved = true;
         }
         if (paintedDecal)
         {
-            playerPosition = VRPlayerController->rootComp->GetComponentLocation();
+            if (VRPlayerController)
+            {
+                playerPosition = VRPlayerController->rootComp->GetComponentLocation();
+            }
             paintedDecal = false;
         }
         else if ((VRPlayerController->rootComp->GetComponentLocation() - playerPosition).Size() > 100.f)
@@ -327,64 +393,96 @@ void APowerManager::Tick(float DeltaTime)
 
     if (SlowDownMusic2)
     {
-        if (Music2->GetAudioComponent()->VolumeMultiplier > 0.f)
+        if (Music2)
         {
-            //Music2->GetAudioComponent()->SetPitchMultiplier(Music2->GetAudioComponent()->PitchMultiplier - 0.0025f);
-            Music2->GetAudioComponent()->SetVolumeMultiplier(Music2->GetAudioComponent()->VolumeMultiplier - 0.0025f);
+           if (Music2->GetAudioComponent()->VolumeMultiplier > 0.f)
+                   {
+                       //Music2->GetAudioComponent()->SetPitchMultiplier(Music2->GetAudioComponent()->PitchMultiplier - 0.0025f);
+                       Music2->GetAudioComponent()->SetVolumeMultiplier(Music2->GetAudioComponent()->VolumeMultiplier - 0.0025f);
+                   }
+                   else
+                   {
+                       Music2->Stop();
+                       SlowDownMusic2 = false;
+                       Music2->GetAudioComponent()->SetPitchMultiplier(1.0f);
+                       Music2->GetAudioComponent()->SetVolumeMultiplier(1.0f);
+                   } 
         }
-        else
-        {
-            Music2->Stop();
-            SlowDownMusic2 = false;
-            Music2->GetAudioComponent()->SetPitchMultiplier(1.0f);
-            Music2->GetAudioComponent()->SetVolumeMultiplier(1.0f);
-        }
+        
     }
 
     if (SlowDownMusic)
     {
-        if (Music->GetAudioComponent()->VolumeMultiplier > 0.f)
+        if (Music)
         {
-            Music->GetAudioComponent()->SetPitchMultiplier(Music->GetAudioComponent()->PitchMultiplier - 0.0025f);
-            Music->GetAudioComponent()->SetVolumeMultiplier(Music->GetAudioComponent()->VolumeMultiplier - 0.0025f);
-
+           if (Music->GetAudioComponent()->VolumeMultiplier > 0.f)
+                   {
+                       Music->GetAudioComponent()->SetPitchMultiplier(Music->GetAudioComponent()->PitchMultiplier - 0.0025f);
+                       Music->GetAudioComponent()->SetVolumeMultiplier(Music->GetAudioComponent()->VolumeMultiplier - 0.0025f);
+           
+                   }
+                   else
+                   {
+                       Music->Stop();
+                       SlowDownMusic = false;
+                       Music->GetAudioComponent()->SetPitchMultiplier(1.0f);
+                       Music->GetAudioComponent()->SetVolumeMultiplier(1.0f);
+                   } 
         }
-        else
-        {
-            Music->Stop();
-            SlowDownMusic = false;
-            Music->GetAudioComponent()->SetPitchMultiplier(1.0f);
-            Music->GetAudioComponent()->SetVolumeMultiplier(1.0f);
-        }
+        
     }
 
     if (SpeedMusicUp1)
     {
-        Music->Play(30.f);
-        if (Music->GetAudioComponent()->VolumeMultiplier < 1.f)
+        if (Music)
         {
-            Music->GetAudioComponent()->SetPitchMultiplier(Music->GetAudioComponent()->PitchMultiplier + 0.0025f);
-            Music->GetAudioComponent()->SetVolumeMultiplier(Music->GetAudioComponent()->VolumeMultiplier + 0.0025f);
-
+           Music->Play(30.f);
+                   if (Music->GetAudioComponent()->VolumeMultiplier < 1.f)
+                   {
+                       Music->GetAudioComponent()->SetPitchMultiplier(Music->GetAudioComponent()->PitchMultiplier + 0.0025f);
+                       Music->GetAudioComponent()->SetVolumeMultiplier(Music->GetAudioComponent()->VolumeMultiplier + 0.0025f);
+           
+                   }
+                   else
+                   {
+                       SpeedMusicUp1 = false;
+                       Music->GetAudioComponent()->SetPitchMultiplier(1.0f);
+                       Music->GetAudioComponent()->SetVolumeMultiplier(1.0f);
+                   } 
         }
-        else
-        {
-            SpeedMusicUp1 = false;
-            Music->GetAudioComponent()->SetPitchMultiplier(1.0f);
-            Music->GetAudioComponent()->SetVolumeMultiplier(1.0f);
-        }
+        
     }
     
     if (BeginTransition)
     {
-        MilkDoor->SetActorHiddenInGame(true);
-        MilkDoor->SetActorEnableCollision(false);
-        Music2->SetActorTransform(Music->GetActorTransform());
-        FVector CurrentDifference = VRPawn->GetActorLocation() - GeneratorActor->GetActorLocation();
+        if (MilkDoor)
+        {
+            MilkDoor->SetActorHiddenInGame(true);
+                    MilkDoor->SetActorEnableCollision(false);
+        }
+        if (Music2)
+        {
+            Music2->SetActorTransform(Music->GetActorTransform());
+        }
+        FVector CurrentDifference;
+        if (VRPawn && GeneratorActor)
+        {
+                    CurrentDifference = VRPawn->GetActorLocation() - GeneratorActor->GetActorLocation();
+
+        }
 
         TArray<AActor*> OverlappingActors;
-        WhatToTeleportTrigger->GetOverlappingActors(OverlappingActors);
-        FVector GeneratorPosition = GeneratorActor->GetActorLocation();
+        if (WhatToTeleportTrigger)
+        {
+                    WhatToTeleportTrigger->GetOverlappingActors(OverlappingActors);
+
+        }
+        FVector GeneratorPosition;
+        if (GeneratorActor)
+        {
+            GeneratorPosition = GeneratorActor->GetActorLocation();
+        }
+        
     
         for (AActor* ActorToTeleport : OverlappingActors)
         {
@@ -393,13 +491,19 @@ void APowerManager::Tick(float DeltaTime)
                 ActorToTeleport->SetActorLocation(InitGenPos.GetLocation() + (ActorToTeleport->GetActorLocation() - GeneratorPosition), false, nullptr, ETeleportType::TeleportPhysics);
             }
         }
-        
-        // Update the generator actor position first
-        GeneratorActor->SetActorTransform(InitGenPos);
-        FVector UpdatedGenPosition = GeneratorActor->GetActorLocation();
+        FVector UpdatedGenPosition;
+        if (GeneratorActor)
+        {
+            // Update the generator actor position first
+            GeneratorActor->SetActorTransform(InitGenPos);
+            UpdatedGenPosition = GeneratorActor->GetActorLocation();
+        }
         // Then compute the new location for the VRPawn
         FVector NewLocation = UpdatedGenPosition + CurrentDifference;
-        VRPawn->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
+        if (VRPawn)
+        {
+            VRPawn->SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
+        }
         //VRPlayerController->VRPawnMovement->Velocity = FVector(0.f);
         // Hide the second phase hallway addition only after moving the actors
         for (AStaticMeshActor* Actor : SecondPhaseHallwayAdditions)
@@ -427,7 +531,10 @@ void APowerManager::Tick(float DeltaTime)
             // Add button to initial positions list
             InitialButtonPositions.Add(Button, Button->GetActorLocation());
         }
-        ScoreManager->OpenDoor3();
+        if (ScoreManager)
+        {
+            ScoreManager->OpenDoor3();
+        }
         BeginTransition = false;
     }
     
@@ -494,53 +601,81 @@ void APowerManager::PowerGenerator(int32 Index)
 
 void APowerManager::TurnPowerOff1()
 {
-    LightCage->GetStaticMeshComponent()->SetVisibility(true);
-    LightCageSphere->GetStaticMeshComponent()->SetVisibility(true);
-    LightCageLight->SetEnabled(true);
-    LightCageLightSound->Play();
-    OrangeGoalRim->GetStaticMeshComponent()->SetSimulatePhysics(true);
-    OrangeGoalRim->GetStaticMeshComponent()->SetEnableGravity(true);
-    BlueGoalRim->GetStaticMeshComponent()->SetSimulatePhysics(true);
-    BlueGoalRim->GetStaticMeshComponent()->SetEnableGravity(true);
-    BlueGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    BlueGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    OrangeGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    OrangeGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    BlueBubble->SetActorHiddenInGame(true);
-    BlueBubbleInterior->SetActorHiddenInGame(true);
-    OrangeBubble->SetActorHiddenInGame(true);
-    OrangeBubbleInterior->SetActorHiddenInGame(true);
-    ScoreManager->OScoringAllowed = false;
-    ScoreManager->BScoringAllowed = false;
+    if (LightCage && LightCageSphere && LightCageLight && LightCageLightSound)
+    {
+        LightCage->GetStaticMeshComponent()->SetVisibility(true);
+            LightCageSphere->GetStaticMeshComponent()->SetVisibility(true);
+            LightCageLight->SetEnabled(true);
+            LightCageLightSound->Play();
+    }
+
+    if (OrangeGoal && OrangeGoalRim && BlueGoal && BlueGoalRim && BlueBubble && OrangeBubble && BlueBubbleInterior && OrangeBubbleInterior)
+    {
+         OrangeGoalRim->GetStaticMeshComponent()->SetSimulatePhysics(true);
+            OrangeGoalRim->GetStaticMeshComponent()->SetEnableGravity(true);
+            BlueGoalRim->GetStaticMeshComponent()->SetSimulatePhysics(true);
+            BlueGoalRim->GetStaticMeshComponent()->SetEnableGravity(true);
+            BlueGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+            BlueGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+            OrangeGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+            OrangeGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+            BlueBubble->SetActorHiddenInGame(true);
+            BlueBubbleInterior->SetActorHiddenInGame(true);
+            OrangeBubble->SetActorHiddenInGame(true);
+            OrangeBubbleInterior->SetActorHiddenInGame(true);
+    }
+
+    if (ScoreManager)
+    {
+       ScoreManager->OScoringAllowed = false;
+           ScoreManager->BScoringAllowed = false; 
+    }
+    
 
     for (APointLight* Light : ArenaLightArray)
     {
         Light->SetEnabled(false);
     }
 
-    ArenaEmissions->SetEnabled(false);
-    ArenaEmissions2->SetEnabled(false);
-    PowerDown->Play();
+    if (ArenaEmissions && ArenaEmissions2 && PowerDown)
+    {
+            ArenaEmissions->SetEnabled(false);
+            ArenaEmissions2->SetEnabled(false);
+            PowerDown->Play();
+    }
+
     SlowDownMusic = true;
     PowerIsOn = false;
 }
 
 void APowerManager::TurnPowerOff2()
 {
-    LightCage->GetStaticMeshComponent()->SetVisibility(true);
-    LightCageSphere->GetStaticMeshComponent()->SetVisibility(true);
-    LightCageLight->SetEnabled(true);
-    LightCageLightSound->Play();
-    
-    ArenaEmissions->SetEnabled(false);
-    ArenaEmissions2->SetEnabled(false);
-    
-    PowerDown->Play();
-    
+    if (LightCage && LightCageSphere && LightCageLight && LightCageLightSound)
+    {
+        LightCage->GetStaticMeshComponent()->SetVisibility(true);
+        LightCageSphere->GetStaticMeshComponent()->SetVisibility(true);
+        LightCageLight->SetEnabled(true);
+        LightCageLightSound->Play();
+    }
+
+    if (ArenaEmissions && ArenaEmissions2 && PowerDown)
+    {
+        ArenaEmissions->SetEnabled(false);
+        ArenaEmissions2->SetEnabled(false);
+        PowerDown->Play();
+    }
     TArray<AActor*> OverlappingActors;
-    WhatToTeleportTrigger->GetOverlappingActors(OverlappingActors);
-    FVector GeneratorPosition = GeneratorActor->GetActorLocation();
-    FVector NewGenPos = NewGeneratorActor->GetActorLocation();
+    if (WhatToTeleportTrigger)
+    {
+            WhatToTeleportTrigger->GetOverlappingActors(OverlappingActors);
+    }
+    FVector GeneratorPosition;
+    FVector NewGenPos;
+    if (GeneratorActor && NewGeneratorActor)
+    {
+        GeneratorPosition = GeneratorActor->GetActorLocation();
+        NewGenPos = NewGeneratorActor->GetActorLocation();
+    }
     FVector currentDifference;
     for (AActor* ActorToTeleport : OverlappingActors)
     {
@@ -550,8 +685,10 @@ void APowerManager::TurnPowerOff2()
             ActorToTeleport->SetActorLocation(NewGenPos + currentDifference, false, nullptr, ETeleportType::TeleportPhysics);
         }
     }
-    
-    GeneratorActor->SetActorTransform(NewGeneratorActor->GetActorTransform(), false, nullptr, ETeleportType::TeleportPhysics);
+    if (GeneratorActor)
+    {
+            GeneratorActor->SetActorTransform(NewGeneratorActor->GetActorTransform(), false, nullptr, ETeleportType::TeleportPhysics);
+    }
     InitialButtonPositions.Empty();
     
     for (int32 i = 0; i < ButtonArray.Num(); ++i)
@@ -582,9 +719,31 @@ void APowerManager::TurnPowerOff2()
         Element->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     }
 
-    HallwayShrinkTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapBeginHallShrink);
-    MusicTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapBeginMusic);
-    CloseArenaOpenElevatorTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapBeginCloseArenaOpenElevator);
+    if (HallwayShrinkTrigger)
+    {
+        if (!HallwayShrunkAdded)
+        {
+            HallwayShrinkTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapBeginHallShrink);
+            HallwayShrunkAdded = true;
+        }
+
+    }
+    if (MusicTrigger)
+    {
+        if (!MusicTriggerAdded)
+        {
+            MusicTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapBeginMusic);
+            MusicTriggerAdded = true;
+        }
+    }
+    if (CloseArenaOpenElevatorTrigger)
+    {
+        if (!CloseArenaOpenElevatorAdded)
+        {
+            CloseArenaOpenElevatorTrigger->OnActorBeginOverlap.AddDynamic(this, &APowerManager::OnOverlapBeginCloseArenaOpenElevator);
+            CloseArenaOpenElevatorAdded = true;
+        }
+    }
     
     for (AStaticMeshActor* Actor : SecondPhaseHallwayAdditions)
     {
@@ -597,7 +756,11 @@ void APowerManager::TurnPowerOff2()
 
 void APowerManager::TurnOffPowerSection1()
 {
-    PowerSectionOff->Play();
+    if (PowerSectionOff)
+    {
+        PowerSectionOff->Play();
+    }
+    
     for (int32 i = 0; i < ArenaLightArray.Num(); ++i)
     {
         if (i <= (ArenaLightArray.Num()/4))
@@ -610,14 +773,24 @@ void APowerManager::TurnOffPowerSection1()
 
 void APowerManager::TurnOffPowerSection2()
 {
-    PowerSectionOff->Play();
-    OrangeGoalRim->GetStaticMeshComponent()->SetSimulatePhysics(true);
-    OrangeGoalRim->GetStaticMeshComponent()->SetEnableGravity(true);
-    OrangeGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    OrangeGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    BlueBubble->SetActorHiddenInGame(true);
-    BlueBubbleInterior->SetActorHiddenInGame(true);
-    ScoreManager->OScoringAllowed = false;
+    if (PowerSectionOff)
+    {
+        PowerSectionOff->Play();
+    }
+    if (OrangeGoalRim && OrangeGoal && BlueBubble && BlueBubbleInterior)
+    {
+        OrangeGoalRim->GetStaticMeshComponent()->SetSimulatePhysics(true);
+        OrangeGoalRim->GetStaticMeshComponent()->SetEnableGravity(true);
+        OrangeGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+        OrangeGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+        BlueBubble->SetActorHiddenInGame(true);
+        BlueBubbleInterior->SetActorHiddenInGame(true); 
+    }
+    if (ScoreManager)
+    {
+        ScoreManager->OScoringAllowed = false;
+    }
+    
     for (int32 i = 0; i < ArenaLightArray.Num(); ++i)
     {
         if ((i > (ArenaLightArray.Num()/4)) &&  (i <= (ArenaLightArray.Num()/4)*2))
@@ -630,17 +803,28 @@ void APowerManager::TurnOffPowerSection2()
 
 void APowerManager::TurnOffPowerSection3()
 {
-    PowerSectionOff->Play();
-    BlueGoalRim->GetStaticMeshComponent()->SetSimulatePhysics(true);
-    BlueGoalRim->GetStaticMeshComponent()->SetEnableGravity(true);
-    BlueGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    BlueGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    OrangeBubble->SetActorHiddenInGame(true);
-    OrangeBubbleInterior->SetActorHiddenInGame(true);
-    ScoreManager->BScoringAllowed = false;
+    if (PowerSectionOff)
+    {
+        PowerSectionOff->Play();
+    }
+    if (BlueGoalRim && BlueGoal && OrangeBubble && OrangeBubbleInterior)
+    {
+           BlueGoalRim->GetStaticMeshComponent()->SetSimulatePhysics(true);
+           BlueGoalRim->GetStaticMeshComponent()->SetEnableGravity(true);
+           BlueGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+           BlueGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+           OrangeBubble->SetActorHiddenInGame(true);
+           OrangeBubbleInterior->SetActorHiddenInGame(true); 
+    }
+    if (ScoreManager)
+    {
+       ScoreManager->BScoringAllowed = false; 
+    }
     SlowDownMusic = true;
-    ScaryLaugh->Play();
-    
+    if (ScaryLaugh)
+    {
+       ScaryLaugh->Play(); 
+    }
     for (int32 i = 0; i < ArenaLightArray.Num(); ++i)
     {
         if ((i > (ArenaLightArray.Num()/4)*2) &&  (i <= (ArenaLightArray.Num()/4)*3))
@@ -653,7 +837,11 @@ void APowerManager::TurnOffPowerSection3()
 
 void APowerManager::TurnOffPowerSection4()
 {
-    PowerSectionOff->Play();
+    if (PowerSectionOff)
+    {
+       PowerSectionOff->Play(); 
+    }
+    
     for (int32 i = 0; i < ArenaLightArray.Num(); ++i)
     {
         if ((i > (ArenaLightArray.Num()/4)*3) &&  (i <= (ArenaLightArray.Num()/4)*4))
@@ -669,81 +857,131 @@ void APowerManager::TurnOffPowerSection4()
 
 void APowerManager::TurnPowerBackOn1()
 {
-    Solution->Play();
-    LightCage->GetStaticMeshComponent()->SetVisibility(false);
-    LightCageSphere->GetStaticMeshComponent()->SetVisibility(false);
-    LightCageLight->SetEnabled(false);
-    LightCageLightSound->Stop();
-    OrangeGoalRim->GetStaticMeshComponent()->SetSimulatePhysics(false);
-    OrangeGoalRim->GetStaticMeshComponent()->SetEnableGravity(false);
-    BlueGoalRim->GetStaticMeshComponent()->SetSimulatePhysics(false);
-    BlueGoalRim->GetStaticMeshComponent()->SetEnableGravity(false);
-    BlueGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    BlueGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-    OrangeGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    OrangeGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-    BlueBubble->SetActorHiddenInGame(false);
-    BlueBubbleInterior->SetActorHiddenInGame(false);
-    OrangeBubble->SetActorHiddenInGame(false);
-    OrangeBubbleInterior->SetActorHiddenInGame(false);
-    ScoreManager->BScoringAllowed = true;
-    ScoreManager->OScoringAllowed = true;
+    if (Solution)
+    {
+       Solution->Play(); 
+    }
+    if (LightCage && LightCageSphere && LightCageLight && LightCageLightSound)
+    {
+        LightCage->GetStaticMeshComponent()->SetVisibility(false);
+        LightCageSphere->GetStaticMeshComponent()->SetVisibility(false);
+        LightCageLight->SetEnabled(false);
+        LightCageLightSound->Stop();
+    }
+
+    if (OrangeGoal && OrangeGoalRim && BlueGoal && BlueGoalRim && BlueBubble && OrangeBubble && BlueBubbleInterior && OrangeBubbleInterior)
+    {
+            OrangeGoalRim->GetStaticMeshComponent()->SetSimulatePhysics(false);
+            OrangeGoalRim->GetStaticMeshComponent()->SetEnableGravity(false);
+            BlueGoalRim->GetStaticMeshComponent()->SetSimulatePhysics(false);
+            BlueGoalRim->GetStaticMeshComponent()->SetEnableGravity(false);
+            BlueGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+            BlueGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+            OrangeGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+            OrangeGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+            BlueBubble->SetActorHiddenInGame(false);
+            BlueBubbleInterior->SetActorHiddenInGame(false);
+            OrangeBubble->SetActorHiddenInGame(false);
+            OrangeBubbleInterior->SetActorHiddenInGame(false);
+    }
+
+    if (ScoreManager)
+    {
+        ScoreManager->BScoringAllowed = true;
+            ScoreManager->OScoringAllowed = true;
+    }
+
+    
 
     for (APointLight* Light : ArenaLightArray)
     {
         Light->SetEnabled(true);
     }
-    ArenaEmissions->SetEnabled(true);
-    ArenaEmissions2->SetEnabled(true);
+
+    if (ArenaEmissions && ArenaEmissions2)
+    {
+            ArenaEmissions->SetEnabled(true);
+            ArenaEmissions2->SetEnabled(true);
+    }
+
 
     SpeedMusicUp1 = true;
 
-    BlueGoalRim->SetActorTransform(InitBGoalPos);
-    BlueLight->SetActorTransform(InitBLightPos);
-    OrangeGoalRim->SetActorTransform(InitOGoalPos);
-    OrangeLight->SetActorTransform(InitOLightPos);
-    
-    ScoreManager->ResetScore();
-    
+    if (BlueGoalRim && BlueLight && OrangeGoalRim && OrangeLight)
+    {
+          BlueGoalRim->SetActorTransform(InitBGoalPos);
+          BlueLight->SetActorTransform(InitBLightPos);
+          OrangeGoalRim->SetActorTransform(InitOGoalPos);
+          OrangeLight->SetActorTransform(InitOLightPos);  
+    }
+
+    if (ScoreManager)
+    {
+           ScoreManager->ResetScore(); 
+    }
+
     PowerIsOn = true;
 }
 
 void APowerManager::TurnPowerBackOn2()
 {
-    LightCage->GetStaticMeshComponent()->SetVisibility(false);
-    LightCageSphere->GetStaticMeshComponent()->SetVisibility(false);
-    LightCageLight->SetEnabled(false);
-    LightCageLightSound->Stop();
-    OrangeGoalRim->GetStaticMeshComponent()->SetSimulatePhysics(false);
-    OrangeGoalRim->GetStaticMeshComponent()->SetEnableGravity(false);
-    BlueGoalRim->GetStaticMeshComponent()->SetSimulatePhysics(false);
-    BlueGoalRim->GetStaticMeshComponent()->SetEnableGravity(false);
-    BlueGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    BlueGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-    OrangeGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    OrangeGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-    BlueBubble->SetActorHiddenInGame(false);
-    BlueBubbleInterior->SetActorHiddenInGame(false);
-    OrangeBubble->SetActorHiddenInGame(false);
-    OrangeBubbleInterior->SetActorHiddenInGame(false);
-    ScoreManager->OScoringAllowed = true;
-    ScoreManager->BScoringAllowed = true;
+    if (LightCage && LightCageSphere && LightCageLight && LightCageLightSound)
+    {
+            LightCage->GetStaticMeshComponent()->SetVisibility(false);
+            LightCageSphere->GetStaticMeshComponent()->SetVisibility(false);
+            LightCageLight->SetEnabled(false);
+            LightCageLightSound->Stop();
+    }
+    if (OrangeGoal && OrangeGoalRim && BlueGoal && BlueGoalRim && BlueBubble && OrangeBubble && BlueBubbleInterior && OrangeBubbleInterior)
+    {
+        OrangeGoalRim->GetStaticMeshComponent()->SetSimulatePhysics(false);
+        OrangeGoalRim->GetStaticMeshComponent()->SetEnableGravity(false);
+        BlueGoalRim->GetStaticMeshComponent()->SetSimulatePhysics(false);
+        BlueGoalRim->GetStaticMeshComponent()->SetEnableGravity(false);
+        BlueGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+        BlueGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+        OrangeGoalRim->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+        OrangeGoal->GetStaticMeshComponent()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+        BlueBubble->SetActorHiddenInGame(false);
+        BlueBubbleInterior->SetActorHiddenInGame(false);
+        OrangeBubble->SetActorHiddenInGame(false);
+        OrangeBubbleInterior->SetActorHiddenInGame(false);
+    }
+    if (ScoreManager)
+    {
+           ScoreManager->OScoringAllowed = true;
+           ScoreManager->BScoringAllowed = true; 
+    }
+
 
     for (APointLight* Light : ArenaLightArray)
     {
         Light->SetEnabled(true);
     }
-    ArenaEmissions->SetEnabled(true);
-    ArenaEmissions2->SetEnabled(true);
-    Music2->Play(50.f);
+    if (ArenaEmissions && ArenaEmissions2)
+    {
+            ArenaEmissions->SetEnabled(true);
+            ArenaEmissions2->SetEnabled(true);
+    }
+    if (Music2)
+    {
+        Music2->Play(50.f);
+    }
     UE_LOG(LogTemp, Warning, TEXT("SHOULD START MUSIC HERE"));
-    
-    BlueGoalRim->SetActorTransform(InitOGoalPos);
-    BlueLight->SetActorTransform(InitOLightPos);
-    OrangeGoalRim->SetActorTransform(InitBGoalPos);
-    OrangeLight->SetActorTransform(InitBLightPos);
 
-    ScoreManager->ResetScore();
+    if (BlueGoalRim && BlueLight && OrangeGoalRim && OrangeLight)
+    {
+            BlueGoalRim->SetActorTransform(InitOGoalPos);
+            BlueLight->SetActorTransform(InitOLightPos);
+            OrangeGoalRim->SetActorTransform(InitBGoalPos);
+            OrangeLight->SetActorTransform(InitBLightPos);
+    }
+
+if (ScoreManager)
+{
+        ScoreManager->ResetScore();
+
+}
     
     PowerIsOn = true;
 }
@@ -752,12 +990,18 @@ void APowerManager::OnOverlapBegin(AActor* OverlappedActor, AActor* OtherActor)
 {
     if (!GoalsSwapped && CanSwapGoals)
     {
-        BlueGoalRim->SetActorTransform(InitOGoalPos);
-        BlueLight->SetActorTransform(InitOLightPos);
-        OrangeGoalRim->SetActorTransform(InitBGoalPos);
-        OrangeLight->SetActorTransform(InitBLightPos);
-        Ball->GetStaticMeshComponent()->SetPhysicsLinearVelocity(FVector(0.f,0.f,0.f));
-        Ball->SetActorTransform(InitBallPos);
+        if (BlueGoalRim && BlueLight && OrangeGoalRim && OrangeLight)
+        {
+                    BlueGoalRim->SetActorTransform(InitOGoalPos);
+                    BlueLight->SetActorTransform(InitOLightPos);
+                    OrangeGoalRim->SetActorTransform(InitBGoalPos);
+                    OrangeLight->SetActorTransform(InitBLightPos);
+        }
+        if (Ball)
+        {
+                    Ball->GetStaticMeshComponent()->SetPhysicsLinearVelocity(FVector(0.f,0.f,0.f));
+                    Ball->SetActorTransform(InitBallPos);
+        }
         InitialButtonPositions.Empty();
         GoalsSwapped = true;
         CanSwapGoals = false;
@@ -787,10 +1031,18 @@ void APowerManager::OnOverlapBeginCloseArenaOpenElevator(AActor* OverlappedActor
 {
     if (!ElevatorOpened && OtherActor->GetName().Contains("Pawn"))
     {
-        ElevatorOpenWall->SetActorHiddenInGame(true);
-        ElevatorOpenWall->SetActorEnableCollision(false);
-        ArenaCloseWall->SetActorHiddenInGame(false);
-        ArenaCloseWall->SetActorEnableCollision(true);
+        if (ElevatorOpenWall)
+        {
+                    ElevatorOpenWall->SetActorHiddenInGame(true);
+                    ElevatorOpenWall->SetActorEnableCollision(false);
+        }
+        if (ArenaCloseWall)
+        {
+                    ArenaCloseWall->SetActorHiddenInGame(false);
+                    ArenaCloseWall->SetActorEnableCollision(true);
+        }
+
+
         //LivingRoomSealWall->SetActorHiddenInGame(false);
         //LivingRoomSealWall->SetActorEnableCollision(true);
         SlowDownMusic2 = true;
@@ -815,8 +1067,12 @@ void APowerManager::OnOverlapResetGame(AActor* OverlappedActor, AActor* OtherAct
         GravityEnabled = false;
         GoDisableGravity = true;
         GravityDisabled = true;
-        VRPawn->InitiateFall = false;
-        VRPawn->ResetGame = true;
+        if (VRPawn)
+        {
+                    VRPawn->InitiateFall = false;
+                    VRPawn->ResetGame = true;
+        }
+
     }
 }
 
@@ -824,22 +1080,42 @@ void APowerManager::OnOverlapBeginSplat(AActor* OverlappedActor, AActor* OtherAc
 {
     if (!Splatted && OtherActor->GetName().Contains("Pawn"))
     {
-        WindFall->Stop();
+        if (WindFall)
+        {
+                   WindFall->Stop(); 
+        }
+
         if (Splat)
         {
             Splat->Play();
         }
         Splatted = true;
-        VRPawn->CanPlayDragSound = true;
+        if (VRPawn)
+        {
+                   VRPawn->CanPlayDragSound = true; 
+        }
+        if (BloodSplatter)
+        {
         BloodSplatter->SetActorHiddenInGame(false);
-        Moonlight->SetEnabled(true);
+        }
+        if (Moonlight)
+        {
+            Moonlight->SetEnabled(true);
+        }
     }
     if (!FlashBroke && OtherActor->ActorHasTag("Flashlight"))
     {
-        FlashBreak->Play();
-        FlashlightLight->SetEnabled(false);
-        FlashlightLightMesh->SetActorHiddenInGame(true);
-        Flashlight->Tags.Add("BrokenCollect");
+        if (FlashBreak)
+        {
+           FlashBreak->Play(); 
+        }
+        if (FlashlightLight && FlashlightLightMesh && Flashlight)
+        {
+            FlashlightLight->SetEnabled(false);
+            FlashlightLightMesh->SetActorHiddenInGame(true);
+            Flashlight->Tags.Add("BrokenCollect");
+        }
+        
         FlashBroke = true;
     }
 }
@@ -850,22 +1126,26 @@ void APowerManager::OnButtonOverlapBegin(AActor* OverlappedActor, AActor* OtherA
     UE_LOG(LogTemp, Warning, TEXT("%s"), *OtherActor->GetName());
     if (!PowerIsOn)
     {
-        if (OtherActor->GetName().Contains("VRPawn") && OverlappedActor->GetName() == "1M_Cube2_97")
+        if (!overlappedButtons.IsEmpty())
         {
-            overlappedButtons[0] = true;
+                   if (OtherActor->GetName().Contains("VRPawn") && OverlappedActor->GetName() == "1M_Cube2_97")
+                   {
+                       overlappedButtons[0] = true;
+                   }
+                   else if (OtherActor->GetName().Contains("VRPawn") && OverlappedActor->GetName() == "1M_Cube2_105")
+                   {
+                       overlappedButtons[1] = true;
+                   }
+                   else if (OtherActor->GetName().Contains("VRPawn") && OverlappedActor->GetName() == "1M_Cube2_106")
+                   {
+                       overlappedButtons[2] = true;
+                   }
+                   else if (OtherActor->GetName().Contains("VRPawn") && OverlappedActor->GetName() == "1M_Cube2_107")
+                   {
+                       overlappedButtons[3] = true;
+                   } 
         }
-        else if (OtherActor->GetName().Contains("VRPawn") && OverlappedActor->GetName() == "1M_Cube2_105")
-        {
-            overlappedButtons[1] = true;
-        }
-        else if (OtherActor->GetName().Contains("VRPawn") && OverlappedActor->GetName() == "1M_Cube2_106")
-        {
-            overlappedButtons[2] = true;
-        }
-        else if (OtherActor->GetName().Contains("VRPawn") && OverlappedActor->GetName() == "1M_Cube2_107")
-        {
-            overlappedButtons[3] = true;
-        }
+
     }
 }
 

@@ -143,14 +143,26 @@ void AMyPlayerController::HandleBoost(const FInputActionInstance& Instance)
     {
         if (BoostCooldown >= 51.0f)
         {
-            // Get the forward vector of the camera
-            FVector Forward = vrCamera->GetForwardVector();
+            FVector Forward;
+            if (vrCamera)
+            {
+                 // Get the forward vector of the camera
+                Forward = vrCamera->GetForwardVector();
+            }
+
             // Calculate the thrust force
             FVector Thrust = Forward * BoostForce;
-            // Apply the thrust
-            VRPawnMovement->Velocity = ClampVelocity(VRPawnMovement->Velocity, Thrust, BoostMaxSpeed);
-
-            BackBoost->Play();
+            if (VRPawnMovement)
+            {
+                // Apply the thrust
+                VRPawnMovement->Velocity = ClampVelocity(VRPawnMovement->Velocity, Thrust, BoostMaxSpeed);
+            }
+            
+            if (BackBoost)
+            {
+               BackBoost->Play(); 
+            }
+            
 
             BoostCooldown -= 51.0f;
         }

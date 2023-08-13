@@ -180,64 +180,105 @@ void AVRPawnMechanics::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    currentPosition = rootCollision->GetComponentLocation();
-    displacement = currentPosition - previousPosition;
-    FVector newVelocity = displacement / DeltaTime;
-    velocities.RemoveAt(0);
-    velocities.Add(newVelocity);
-    velocity = AverageVelocity(velocities);
-    previousPosition = currentPosition;
+    if (rootCollision)
+    {
+           currentPosition = rootCollision->GetComponentLocation();
+           displacement = currentPosition - previousPosition;
+           FVector newVelocity = displacement / DeltaTime;
+           velocities.RemoveAt(0);
+           velocities.Add(newVelocity);
+           velocity = AverageVelocity(velocities);
+           previousPosition = currentPosition; 
+    }
 
-    currentRPosition = rightController->GetRelativeLocation();
-    rDisplacement = currentRPosition - previousRPosition;
-    FVector newRVelocity = rDisplacement / DeltaTime;
-    rVelocities.RemoveAt(0);
-    rVelocities.Add(newRVelocity);
-    rVelocity = AverageVelocity(rVelocities);
-    
-    previousRPosition = currentRPosition;
+    if (rightController)
+    {
+        currentRPosition = rightController->GetRelativeLocation();
+        rDisplacement = currentRPosition - previousRPosition;
+        FVector newRVelocity = rDisplacement / DeltaTime;
+        rVelocities.RemoveAt(0);
+        rVelocities.Add(newRVelocity);
+        rVelocity = AverageVelocity(rVelocities);
+        
+        previousRPosition = currentRPosition;
+    }
 
-    currentLPosition = leftController->GetRelativeLocation();
-    lDisplacement = currentLPosition - previousLPosition;
-    FVector newLVelocity = lDisplacement / DeltaTime;
-    lVelocities.RemoveAt(0);
-    lVelocities.Add(newLVelocity);
-    lVelocity = AverageVelocity(lVelocities);
-    previousLPosition = currentLPosition;
+    if (leftController)
+    {
+        currentLPosition = leftController->GetRelativeLocation();
+        lDisplacement = currentLPosition - previousLPosition;
+        FVector newLVelocity = lDisplacement / DeltaTime;
+        lVelocities.RemoveAt(0);
+        lVelocities.Add(newLVelocity);
+        lVelocity = AverageVelocity(lVelocities);
+        previousLPosition = currentLPosition;
+    }
+
 
     if (UpdatePictureFrame)
     {
         if (WrenchItemGrabbed)
         {
-            WrenchPictureMesh->GetStaticMeshComponent()->SetMaterial(0, WrenchMat);
+            if (WrenchPictureMesh)
+            {
+               WrenchPictureMesh->GetStaticMeshComponent()->SetMaterial(0, WrenchMat); 
+            }
+            
         }
         if (DiscItemGrabbed)
         {
-            DiscPictureMesh->GetStaticMeshComponent()->SetMaterial(0, DiscMat);
+            if (DiscPictureMesh)
+            {
+              DiscPictureMesh->GetStaticMeshComponent()->SetMaterial(0, DiscMat);  
+            }
+            
         }
         if (SlenderItemGrabbed)
         {
-            SlenderPictureMesh->GetStaticMeshComponent()->SetMaterial(0, SlenderMat);
+            if (SlenderPictureMesh)
+            {
+                SlenderPictureMesh->GetStaticMeshComponent()->SetMaterial(0, SlenderMat);
+            }
         }
         if (MilkItemGrabbed)
         {
-            MilkPictureMesh->GetStaticMeshComponent()->SetMaterial(0, MilkMat);
+            if (MilkPictureMesh)
+            {
+                            MilkPictureMesh->GetStaticMeshComponent()->SetMaterial(0, MilkMat);
+
+            }
         }
         if (BearItemGrabbed)
         {
-            BearPictureMesh->GetStaticMeshComponent()->SetMaterial(0, BearMat);
+            if (BearPictureMesh)
+            {
+                            BearPictureMesh->GetStaticMeshComponent()->SetMaterial(0, BearMat);
+
+            }
         }
         if (MooseItemGrabbed)
         {
-            MoosePictureMesh->GetStaticMeshComponent()->SetMaterial(0, MooseMat);
+            if (MoosePictureMesh)
+            {
+                            MoosePictureMesh->GetStaticMeshComponent()->SetMaterial(0, MooseMat);
+
+            }
         }
         if (BoxItemGrabbed)
         {
-            BoxPictureMesh->GetStaticMeshComponent()->SetMaterial(0, BoxMat);
+            if (BoxPictureMesh)
+            {
+                            BoxPictureMesh->GetStaticMeshComponent()->SetMaterial(0, BoxMat);
+
+            }
         }
         if (FlashlightItemGrabbed)
         {
-            FlashlightPictureMesh->GetStaticMeshComponent()->SetMaterial(0, FlashlightMat);
+            if (FlashlightPictureMesh)
+            {
+                            FlashlightPictureMesh->GetStaticMeshComponent()->SetMaterial(0, FlashlightMat);
+
+            }
         }
         UpdatePictureFrame = false;
     }
@@ -251,8 +292,12 @@ void AVRPawnMechanics::OnOverlapBeginZiplineFall(AActor* OverlappedActor, AActor
         if (!(WrenchItemGrabbed && DiscItemGrabbed && SlenderItemGrabbed && MilkItemGrabbed && BearItemGrabbed && MooseItemGrabbed && BoxItemGrabbed && FlashlightItemGrabbed))
         {
             InitiateFall = true;
-            Cast<USphereComponent>(rootCollision)->SetSimulatePhysics(true);
-            Cast<USphereComponent>(rootCollision)->SetEnableGravity(true);
+            if (rootCollision)
+            {
+                            Cast<USphereComponent>(rootCollision)->SetSimulatePhysics(true);
+                            Cast<USphereComponent>(rootCollision)->SetEnableGravity(true);
+            }
+
             TArray<UAudioComponent*> AudioComponents;
             GetComponents<UAudioComponent>(AudioComponents);
             for(UAudioComponent* AudioComp : AudioComponents)
